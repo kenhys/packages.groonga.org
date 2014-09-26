@@ -13,7 +13,7 @@ RSpec.configure do |c|
     c.sudo_password = ENV["SUDO_PASSWORD"]
   end
   c.before :all do
-    block = self.class.metadata[:block]
+    block = self.class.metadata[:example_group_block]
     file = block.source_location.first
     host = File.basename(Pathname.new(file).dirname)
     if c.host != host
