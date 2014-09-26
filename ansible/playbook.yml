@@ -1,0 +1,16 @@
+- hosts: package-servers
+  sudo: yes
+  tasks:
+    - name: Install Apache
+      apt: name=apache2
+    - name: Put Apache configuration
+      template: src=templates/packages.groonga.org.conf.j2 dest=/etc/apache2/sites-available/packages.groonga.org.conf
+    - name: Enable our Apache configuration
+      command: a2ensite packages.groonga.org
+    - name: Disable default Apache configuration
+      command: a2dissite 000-default
+      notify:
+        - Restart Apache
+  handlers:
+    - name: Restart Apache
+      service: name=apache2 state=restarted
