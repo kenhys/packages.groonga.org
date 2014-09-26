@@ -1,7 +1,7 @@
 notifications:
   recipients:
     - groonga-commit@lists.sourceforge.jp
+rvm:
+  - system
 before_install:
   - sudo apt-get install -qq -y -V vagrant ansible
-script:
-  - rake
