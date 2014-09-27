@@ -4,7 +4,7 @@ notifications:
 rvm:
   - system
 install:
-  - sudo apt-get install -qq -y -V ansible ruby1.9.1-full
+  - sudo apt-get install -qq -y -V virtualbox ansible ruby1.9.1-full
   - wget https://dl.bintray.com/mitchellh/vagrant/vagrant_1.6.5_x86_64.deb
   - sudo dpkg -i vagrant_1.6.5_x86_64.deb
   - sudo gem1.9.1 install rake serverspec --no-ri --no-rdoc
