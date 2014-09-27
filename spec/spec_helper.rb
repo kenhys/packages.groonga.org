@@ -5,6 +5,26 @@ require "net/ssh"
 include SpecInfra::Helper::Ssh
 include SpecInfra::Helper::DetectOS
 
+def without_bundler
+  bundler_environment_variable_names = [
+    "BUNDLE_BIN_PATH",
+    "BUNDLE_GEMFILE",
+    "RUBYOPT",
+  ]
+  variables = {}
+  bundler_environment_variable_names.each do |name|
+    variables[name] = ENV[name]
+    ENV.delete(name)
+  end
+  begin
+    yield
+  ensure
+    bundler_environment_variable_names.each do |name|
+      ENV[name] = variables[name]
+    end
+  end
+end
+
 RSpec.configure do |c|
   if ENV["ASK_SUDO_PASSWORD"]
     require "highline/import"
@@ -21,9 +41,12 @@ RSpec.configure do |c|
       c.host  = host
       options = Net::SSH::Config.for(c.host)
       user    = options[:user] || Etc.getlogin
-      system("vagrant", "up", host)
-      system("vagrant", "provision", host)
-      config = `vagrant ssh-config #{host}`
+      config = nil
+      without_bundler do
+        system("vagrant", "up", host)
+        system("vagrant", "provision", host)
+        config = `vagrant ssh-config #{host}`
+      end
       if config != ""
         config.each_line do |line|
           if match = /HostName (.*)/.match(line)
