@@ -5,6 +5,6 @@ rvm:
   - system
 install:
   - sudo apt-get install -qq -y -V vagrant ansible ruby1.9.1-full
-  - sudo gem1.9.1 install rake serverspec
+  - sudo gem1.9.1 install rake serverspec --no-ri --no-rdoc
 script:
   - ruby1.9.1 -S rake
