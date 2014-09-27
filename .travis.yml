@@ -5,4 +5,4 @@ rvm:
   - system
 before_install:
   - sudo apt-get install -qq -y -V vagrant ansible rubygems
-  - sudo gems install bundler
+  - sudo gem install bundler
