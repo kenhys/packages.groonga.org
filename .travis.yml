@@ -3,9 +3,8 @@ notifications:
     - groonga-commit@lists.sourceforge.jp
 rvm:
   - system
-before_install:
+install:
   - sudo apt-get install -qq -y -V vagrant ansible ruby1.9.1-full
-before_script:
   - sudo gem1.9.1 install serverspec
 script:
   - ruby1.9.1 -S rake
