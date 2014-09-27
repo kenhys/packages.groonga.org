@@ -14,6 +14,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       ansible.groups = {
         "package-servers" => [name],
       }
+      ansible.host_key_checking = false
     end
   end
 end

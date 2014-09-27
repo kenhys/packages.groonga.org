@@ -1,16 +1,116 @@
 - hosts: package-servers
   sudo: yes
   tasks:
+    # Base
+    - name: Upgrade packages
+      apt:
+        update_cache=yes
+        cache_valid_time=3600
+        upgrade=safe
+    - name: Install base packages
+      apt: name={{ item }}
+      with_items:
+        - apt-listchanges
+        - vim
+        - zsh
+        - lv
+    - name: Use VIM as the default editor
+      command: update-alternatives --set editor /usr/bin/vim.basic
+    - name: Use e-mail for apt-listchanges
+      copy:
+        src=files/listchanges.conf
+        dest=/etc/apt/listchanges.conf
+
+    # User
+    - name: Install "packages" user
+      user: name=packages
+    - name: Create directories
+      file:
+        path=/home/packages/{{ item }}
+        state=directory
+        owner=packages
+        group=packages
+      with_items:
+        - bin/
+        - public/
+    - name: Put ~packages/.forward
+      copy:
+        content="packages@groonga.org"
+        dest=~packages/.forward
+        owner=packages
+        group=packages
+
+    # Apache
     - name: Install Apache
       apt: name=apache2
     - name: Put Apache configuration
-      template: src=templates/packages.groonga.org.conf.j2 dest=/etc/apache2/sites-available/packages.groonga.org.conf
+      copy:
+        src=files/packages.groonga.org.conf
+        dest=/etc/apache2/sites-available/packages.groonga.org.conf
+    - name: Put footer file
+      copy:
+        src=files/footer.html
+        dest=/home/packages/public/footer.html
+        owner=packages
+        group=packages
     - name: Enable our Apache configuration
       command: a2ensite packages.groonga.org
     - name: Disable default Apache configuration
       command: a2dissite 000-default
       notify:
         - Restart Apache
+
+    # Postfix
+    - name: Install Postfix
+      apt: name=postfix
+    - name: Set /etc/aliases
+      copy:
+        src=files/aliases
+        dest=/etc/aliases
+      notify:
+        - Update /etc/aliases
+    - name: Set /etc/mailname
+      copy:
+        content="packages.groonga.org"
+        dest=/etc/mailname
+    - name: Put Postfix configuration
+      copy:
+        src=files/main.cf
+        dest=/etc/postfix/main.cf
+      notify:
+        - Restart Postfix
+
+    # Nightly package builder
+    - name: Install packages for nightly package builder
+      apt: name={{ item }}
+      with_items:
+        - git
+        - zsh
+        - autoconf
+        - libtool
+        - gcc
+        - g++
+        - make
+        - python-sphinx
+        - ruby
+    - name: Install nightly package builder
+      copy:
+        src=files/create-snapshot-package.sh
+        dest=/home/packages/bin/
+        owner=packages
+        group=packages
+        mode=0755
+    - name: Install cron
+      cron:
+        special_time: daily
+        name: Create nightly package
+        job: ~packages/bin/create-snapshot-package.sh
+        user: packages
+
   handlers:
     - name: Restart Apache
       service: name=apache2 state=restarted
+    - name: Update /etc/aliases
+      command: postalias /etc/aliases
+    - name: Restart Postfix
+      service: name=postfix state=restarted
