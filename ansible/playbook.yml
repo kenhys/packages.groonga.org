@@ -35,7 +35,7 @@
         - public/
     - name: Put ~packages/.forward
       copy:
-        content="packages@groonga.org"
+        content="package@groonga.org"
         dest=~packages/.forward
         owner=packages
         group=packages
