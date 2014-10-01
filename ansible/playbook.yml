@@ -107,6 +107,7 @@
         - make
         - bison
         - python-sphinx
+        - gettext
         - ruby
     - name: Install nightly package builder
       copy:
