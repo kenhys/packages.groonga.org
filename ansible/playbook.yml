@@ -106,6 +106,7 @@
         - gcc
         - g++
         - make
+        - cmake
         - bison
         - python-sphinx
         - gettext
