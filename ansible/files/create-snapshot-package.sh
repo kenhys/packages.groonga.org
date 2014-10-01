@@ -30,7 +30,7 @@ export PKG_CONFIG_PATH=$HOME/work/nightly/lib/pkgconfig
 
 build_mysql() {
   run cd ~/work/
-  if [ -d "${mysql_base}" ]; then
+  if [ -f "${mysql_base}/scripts/mysql_config" ]; then
     return 0
   fi
 
