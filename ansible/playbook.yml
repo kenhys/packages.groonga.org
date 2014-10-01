@@ -101,6 +101,7 @@
         - git
         - zsh
         - autoconf
+        - pkg-config
         - libtool
         - gcc
         - g++
