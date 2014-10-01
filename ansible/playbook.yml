@@ -111,6 +111,7 @@
         - python-sphinx
         - gettext
         - ruby
+        - libncurses5-dev
     - name: Install nightly package builder
       copy:
         src=files/create-snapshot-package.sh
