@@ -112,6 +112,7 @@
         - gettext
         - ruby
         - libncurses5-dev
+        - curl
     - name: Install nightly package builder
       copy:
         src=files/create-snapshot-package.sh
