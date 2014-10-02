@@ -113,6 +113,7 @@
         - ruby
         - libncurses5-dev
         - curl
+        - zip
     - name: Install nightly package builder
       copy:
         src=files/create-snapshot-package.sh
