@@ -114,6 +114,7 @@
         - libncurses5-dev
         - curl
         - zip
+        - virtualbox
         - vagrant
     - name: Install nightly package builder
       copy:
