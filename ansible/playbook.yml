@@ -114,6 +114,7 @@
         - libncurses5-dev
         - curl
         - zip
+        - vagrant
     - name: Install nightly package builder
       copy:
         src=files/create-snapshot-package.sh
