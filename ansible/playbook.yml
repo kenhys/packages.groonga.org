@@ -116,6 +116,7 @@
         - zip
         - virtualbox
         - vagrant
+        - rpm
     - name: Install nightly package builder
       copy:
         src=files/create-snapshot-package.sh
