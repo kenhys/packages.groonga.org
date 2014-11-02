@@ -22,7 +22,7 @@
         dest=/etc/apt/listchanges.conf
 
     # User
-    - name: Install "packages" user
+    - name: Create "packages" user
       user: name=packages
     - name: Create directories
       file:
