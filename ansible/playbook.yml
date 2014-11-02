@@ -131,6 +131,92 @@
         job: ~packages/bin/create-snapshot-package.sh
         user: packages
 
+    # Droonga
+    - name: Enable Groonga APT repository
+      apt_repository: repo=ppa:groonga/ppa
+    - name: Install Droonga dependency libraries
+      apt: name={{ item }}
+      with_items:
+        - libgroonga-dev
+        - groonga-tokenizer-mecab
+        - groonga-bin
+        - ruby-dev
+        - nodejs
+        - nodejs-legacy
+        - npm
+    - name: Create "droonga" group
+      group:
+        name=droonga
+
+    # Droonga: droonga-engine
+    - name: Create "droonga-engine" user
+      user:
+        name=droonga-engine
+        group=droonga
+    - name: Create directories
+      file:
+        path=~droonga-engine/{{ item }}/
+        state=directory
+        owner=droonga-engine
+        group=droonga
+      with_items:
+        - droonga1
+        - droonga2
+        - droonga3
+    - name: Put ~droonga-engine/.forward
+      copy:
+        content="packages@groonga.org"
+        dest=~droonga-engine/.forward
+        owner=droonga-engine
+        group=droonga
+    - name: Install droonga-engine
+      gem:
+        name=droonga-engine
+        user_install=no
+    - name: Configure droonga-engine
+      shell: sudo -u droonga-engine -H droonga-engine-catalog-generate --hosts=127.0.1.1,127.0.2.1,127.0.3.1 --output catalog.json
+      args:
+        chdir: ~droonga-engine/{{ item }}
+      with_items:
+        - droonga1
+        - droonga2
+        - droonga3
+      notify:
+        - Restart droonga-engine
+
+    # Droonga: droonga-htp-server
+    - name: Create "droonga-http-server" user
+      user:
+        name=droonga-http-server
+        group=droonga
+    - name: Create directories
+      file:
+        path=~droonga-http-server/droonga/
+        state=directory
+        owner=droonga-http-server
+        group=droonga
+    - name: Put ~droonga-http-server/.forward
+      copy:
+        content="packages@groonga.org"
+        dest=~droonga-http-server/.forward
+        owner=droonga-http-server
+        group=droonga
+    - name: Install droonga-http-server
+      npm:
+        name=droonga-http-server
+        global=yes
+    - name: Configure droonga-http-server
+      shell: |-
+        sudo -u droonga-http-server -H \
+          droonga-http-server-configure \
+            --quiet \
+            --droonga-engine-host-name 127.0.1.1 \
+            --receive-host-name 127.0.1.1
+      args:
+        chdir: ~droonga-http-server/droonga
+      notify:
+        - Restart droonga-http-server
+
   handlers:
     - name: Restart Apache
       service: name=apache2 state=restarted
@@ -138,3 +224,35 @@
       command: postalias /etc/aliases
     - name: Restart Postfix
       service: name=postfix state=restarted
+
+    - name: Restart droonga-engine
+      shell: |-
+        if [ -f droonga-engine.pid ]; then
+          sudo -u droonga-engine -H kill $(cat droonga-engine.pid)
+          sleep 3
+        fi
+        sudo -u droonga-engine -H \
+          droonga-engine \
+            --log-file droonga-engine.log \
+            --pid-file droonga-engine.pid \
+            --host 127.0.{{ item }}.1 \
+            --daemon
+      args:
+        chdir: ~droonga-engine/droonga{{ item }}
+      with_items:
+        - 1
+        - 2
+        - 3
+    - name: Restart droonga-http-server
+      shell: |-
+        if [ -f droonga-http-server.pid ]; then
+          sudo -u droonga-http-server -H kill $(cat droonga-http-server.pid)
+          sleep 3
+        fi
+        sudo -u droonga-http-server -H \
+          droonga-http-server \
+            --pid-file droonga-http-server.pid \
+            --enable-trust-proxy \
+            --daemon
+      args:
+        chdir: ~droonga-http-server/droonga
