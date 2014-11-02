@@ -217,6 +217,45 @@
       notify:
         - Restart droonga-http-server
 
+    # Fluentd
+    - name: Install GPG key of Fluentd APT repository
+      apt_key:
+        url=http://packages.treasuredata.com/GPG-KEY-td-agent
+    - name: Install Fluentd APT repository
+      apt_repository:
+        repo="deb [arch=amd64] http://packages.treasuredata.com/2/ubuntu/trusty/ trusty contrib"
+    - name: Install Fluentd
+      apt: name={{ item }}
+      with_items:
+        - td-agent
+    - name: Install Fluentd plugins
+      gem:
+        executable=/usr/sbin/td-agent-gem
+        name={{ item }}
+        user_install=no
+      with_items:
+        - fluent-plugin-record-reformer
+        - fluent-plugin-groonga
+    - name: Add "td-agent" user to "adm" groups
+      user:
+        name=td-agent
+        groups=adm
+    - name: Create directories
+      file:
+        path={{ item }}
+        state=directory
+        owner=td-agent
+        group=td-agent
+      with_items:
+        - /var/spool/td-agent/
+        - /var/spool/td-agent/buffer/
+    - name: Put fluentd.conf
+      copy:
+        src=files/fluentd/fluentd.conf
+        dest=/etc/td-agent/td-agent.conf
+      notify:
+        - Restart Fluentd
+
   handlers:
     - name: Restart Apache
       service: name=apache2 state=restarted
@@ -256,3 +295,6 @@
             --daemon
       args:
         chdir: ~droonga-http-server/droonga
+
+    - name: Restart Fluentd
+      service: name=td-agent state=restarted
