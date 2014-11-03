@@ -169,10 +169,16 @@
         dest=~droonga-engine/.forward
         owner=droonga-engine
         group=droonga
+    - name: Put ~droonga-engine/Gemfile
+      copy:
+        src=files/droonga-engine/Gemfile
+        dest=~droonga-engine/Gemfile
+        owner=droonga-engine
+        group=droonga
     - name: Install droonga-engine
-      gem:
-        name=droonga-engine
-        user_install=no
+      shell: rm -rf Gemfile.lock; bundle install --system
+      args:
+        chdir: ~droonga-engine/
     - name: Configure droonga-engine
       shell: sudo -u droonga-engine -H droonga-engine-catalog-generate --hosts=127.0.1.1,127.0.2.1,127.0.3.1 --output catalog.json
       args:
@@ -184,7 +190,7 @@
       notify:
         - Restart droonga-engine
 
-    # Droonga: droonga-htp-server
+    # Droonga: droonga-http-server
     - name: Create "droonga-http-server" user
       user:
         name=droonga-http-server
@@ -202,9 +208,7 @@
         owner=droonga-http-server
         group=droonga
     - name: Install droonga-http-server
-      npm:
-        name=droonga-http-server
-        global=yes
+      shell: npm install -g droonga/express-droonga droonga/droonga-http-server
     - name: Configure droonga-http-server
       shell: |-
         sudo -u droonga-http-server -H \
@@ -292,6 +296,7 @@
           droonga-http-server \
             --pid-file droonga-http-server.pid \
             --enable-trust-proxy \
+            --host 127.0.1.1 \
             --daemon
       args:
         chdir: ~droonga-http-server/droonga

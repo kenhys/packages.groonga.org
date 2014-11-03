@@ -1,0 +1,3 @@
+source "https://rubygems.org/"
+
+gem "droonga-engine", :github => "droonga/droonga-engine"
