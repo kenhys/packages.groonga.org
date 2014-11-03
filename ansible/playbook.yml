@@ -169,16 +169,17 @@
         dest=~droonga-engine/.forward
         owner=droonga-engine
         group=droonga
-    - name: Put ~droonga-engine/Gemfile
-      copy:
-        src=files/droonga-engine/Gemfile
-        dest=~droonga-engine/Gemfile
-        owner=droonga-engine
-        group=droonga
+    - name: Update droonga-engine repository
+      git:
+        repo=https://github.com/droonga/droonga-engine.git
+        dest=~droonga-engine/droonga-engine/
     - name: Install droonga-engine
-      shell: rm -rf Gemfile.lock; bundle install --system
+      shell: |-
+        rm -rf *.gem; \
+        gem build droonga-engine.gemspec && \
+        gem install droonga-engine-*.gem
       args:
-        chdir: ~droonga-engine/
+        chdir: ~droonga-engine/droonga-engine
     - name: Configure droonga-engine
       shell: sudo -u droonga-engine -H droonga-engine-catalog-generate --hosts=127.0.1.1,127.0.2.1,127.0.3.1 --output catalog.json
       args:
@@ -208,7 +209,12 @@
         owner=droonga-http-server
         group=droonga
     - name: Install droonga-http-server
-      shell: npm install -g droonga/express-droonga droonga/droonga-http-server
+      shell: |-
+        npm install -g \
+          express \
+          droonga/express-droonga \
+          droonga/droonga-http-server && \
+        rm -rf /usr/local/lib/node_modules/express-droonga/node_modules/express
     - name: Configure droonga-http-server
       shell: |-
         sudo -u droonga-http-server -H \
