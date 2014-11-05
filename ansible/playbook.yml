@@ -242,10 +242,13 @@
       gem:
         executable=/usr/sbin/td-agent-gem
         name={{ item }}
+        state=latest
         user_install=no
       with_items:
         - fluent-plugin-record-reformer
         - fluent-plugin-groonga
+      notify:
+        - Restart Fluentd
     - name: Add "td-agent" user to "adm" groups
       user:
         name=td-agent
