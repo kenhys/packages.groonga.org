@@ -75,7 +75,7 @@ create_nightly_build() {
   run mkdir -p ${project_name}.build
   run cd ${project_name}.build
   run ../${project_name}/configure \
-    --enable-debug \
+    CFLAGS="-O0" CXXFLAGS="-O0" \
     --prefix=$HOME/work/nightly \
     "$@" \
     > configure.log
