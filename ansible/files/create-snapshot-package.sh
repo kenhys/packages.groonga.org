@@ -132,10 +132,10 @@ package_mariadb_with_mroonga() {
 }
 
 create_nightly_build groonga groonga yes \
-    --without-cutter \
-    --enable-document \
-    --with-ruby \
-    --enable-mruby
+  --without-cutter \
+  --enable-document \
+  --with-ruby \
+  --enable-mruby
 create_nightly_build groonga groonga-normalizer-mysql yes
 build_mysql
 create_nightly_build mroonga mroonga no \
