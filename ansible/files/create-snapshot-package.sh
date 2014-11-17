@@ -75,7 +75,6 @@ create_nightly_build() {
   run mkdir -p ${project_name}.build
   run cd ${project_name}.build
   run ../${project_name}/configure \
-    CFLAGS="-O0" CXXFLAGS="-O0" \
     --prefix=$HOME/work/nightly \
     "$@" \
     > configure.log
@@ -132,13 +131,16 @@ package_mariadb_with_mroonga() {
 }
 
 create_nightly_build groonga groonga yes \
+  --enable-debug \
   --without-cutter \
   --enable-document \
   --with-ruby \
   --enable-mruby
-create_nightly_build groonga groonga-normalizer-mysql yes
+create_nightly_build groonga groonga-normalizer-mysql yes \
+  CFLAGS="-O0" CXXFLAGS="-O0"
 build_mysql
 create_nightly_build mroonga mroonga no \
+  --with-debug \
   --without-cutter \
   --enable-document \
   --with-mysql-source="$HOME/work/${mysql_base}" \
