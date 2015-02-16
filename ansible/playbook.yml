@@ -131,143 +131,143 @@
         job: ~packages/bin/create-snapshot-package.sh
         user: packages
 
-    # Droonga
-    - name: Enable Groonga APT repository
-      apt_repository: repo=ppa:groonga/ppa
-    - name: Install Droonga dependency libraries
-      apt: name={{ item }}
-      with_items:
-        - libgroonga-dev
-        - groonga-tokenizer-mecab
-        - groonga-bin
-        - ruby-dev
-        - nodejs
-        - nodejs-legacy
-        - npm
-    - name: Create "droonga" group
-      group:
-        name=droonga
+    # # Droonga
+    # - name: Enable Groonga APT repository
+    #   apt_repository: repo=ppa:groonga/ppa
+    # - name: Install Droonga dependency libraries
+    #   apt: name={{ item }}
+    #   with_items:
+    #     - libgroonga-dev
+    #     - groonga-tokenizer-mecab
+    #     - groonga-bin
+    #     - ruby-dev
+    #     - nodejs
+    #     - nodejs-legacy
+    #     - npm
+    # - name: Create "droonga" group
+    #   group:
+    #     name=droonga
 
-    # Droonga: droonga-engine
-    - name: Create "droonga-engine" user
-      user:
-        name=droonga-engine
-        group=droonga
-    - name: Create directories
-      file:
-        path=~droonga-engine/{{ item }}/
-        state=directory
-        owner=droonga-engine
-        group=droonga
-      with_items:
-        - droonga1
-        - droonga2
-        - droonga3
-    - name: Put ~droonga-engine/.forward
-      copy:
-        content="packages@groonga.org"
-        dest=~droonga-engine/.forward
-        owner=droonga-engine
-        group=droonga
-    - name: Update droonga-engine repository
-      git:
-        repo=https://github.com/droonga/droonga-engine.git
-        dest=~droonga-engine/droonga-engine/
-    - name: Install droonga-engine
-      shell: |-
-        rm -rf *.gem; \
-        gem build droonga-engine.gemspec && \
-        gem install droonga-engine-*.gem
-      args:
-        chdir: ~droonga-engine/droonga-engine
-    - name: Configure droonga-engine
-      shell: sudo -u droonga-engine -H droonga-engine-catalog-generate --hosts=127.0.1.1,127.0.2.1,127.0.3.1 --output catalog.json
-      args:
-        chdir: ~droonga-engine/{{ item }}
-      with_items:
-        - droonga1
-        - droonga2
-        - droonga3
-      notify:
-        - Restart droonga-engine
+    # # Droonga: droonga-engine
+    # - name: Create "droonga-engine" user
+    #   user:
+    #     name=droonga-engine
+    #     group=droonga
+    # - name: Create directories
+    #   file:
+    #     path=~droonga-engine/{{ item }}/
+    #     state=directory
+    #     owner=droonga-engine
+    #     group=droonga
+    #   with_items:
+    #     - droonga1
+    #     - droonga2
+    #     - droonga3
+    # - name: Put ~droonga-engine/.forward
+    #   copy:
+    #     content="packages@groonga.org"
+    #     dest=~droonga-engine/.forward
+    #     owner=droonga-engine
+    #     group=droonga
+    # - name: Update droonga-engine repository
+    #   git:
+    #     repo=https://github.com/droonga/droonga-engine.git
+    #     dest=~droonga-engine/droonga-engine/
+    # - name: Install droonga-engine
+    #   shell: |-
+    #     rm -rf *.gem; \
+    #     gem build droonga-engine.gemspec && \
+    #     gem install droonga-engine-*.gem
+    #   args:
+    #     chdir: ~droonga-engine/droonga-engine
+    # - name: Configure droonga-engine
+    #   shell: sudo -u droonga-engine -H droonga-engine-catalog-generate --hosts=127.0.1.1,127.0.2.1,127.0.3.1 --output catalog.json
+    #   args:
+    #     chdir: ~droonga-engine/{{ item }}
+    #   with_items:
+    #     - droonga1
+    #     - droonga2
+    #     - droonga3
+    #   notify:
+    #     - Restart droonga-engine
 
-    # Droonga: droonga-http-server
-    - name: Create "droonga-http-server" user
-      user:
-        name=droonga-http-server
-        group=droonga
-    - name: Create directories
-      file:
-        path=~droonga-http-server/droonga/
-        state=directory
-        owner=droonga-http-server
-        group=droonga
-    - name: Put ~droonga-http-server/.forward
-      copy:
-        content="packages@groonga.org"
-        dest=~droonga-http-server/.forward
-        owner=droonga-http-server
-        group=droonga
-    - name: Install droonga-http-server
-      shell: |-
-        npm install -g \
-          express \
-          droonga/express-droonga \
-          droonga/droonga-http-server && \
-        rm -rf /usr/local/lib/node_modules/express-droonga/node_modules/express
-    - name: Configure droonga-http-server
-      shell: |-
-        sudo -u droonga-http-server -H \
-          droonga-http-server-configure \
-            --quiet \
-            --droonga-engine-host-name 127.0.1.1 \
-            --receive-host-name 127.0.1.1
-      args:
-        chdir: ~droonga-http-server/droonga
-      notify:
-        - Restart droonga-http-server
+    # # Droonga: droonga-http-server
+    # - name: Create "droonga-http-server" user
+    #   user:
+    #     name=droonga-http-server
+    #     group=droonga
+    # - name: Create directories
+    #   file:
+    #     path=~droonga-http-server/droonga/
+    #     state=directory
+    #     owner=droonga-http-server
+    #     group=droonga
+    # - name: Put ~droonga-http-server/.forward
+    #   copy:
+    #     content="packages@groonga.org"
+    #     dest=~droonga-http-server/.forward
+    #     owner=droonga-http-server
+    #     group=droonga
+    # - name: Install droonga-http-server
+    #   shell: |-
+    #     npm install -g \
+    #       express \
+    #       droonga/express-droonga \
+    #       droonga/droonga-http-server && \
+    #     rm -rf /usr/local/lib/node_modules/express-droonga/node_modules/express
+    # - name: Configure droonga-http-server
+    #   shell: |-
+    #     sudo -u droonga-http-server -H \
+    #       droonga-http-server-configure \
+    #         --quiet \
+    #         --droonga-engine-host-name 127.0.1.1 \
+    #         --receive-host-name 127.0.1.1
+    #   args:
+    #     chdir: ~droonga-http-server/droonga
+    #   notify:
+    #     - Restart droonga-http-server
 
-    # Fluentd
-    - name: Install GPG key of Fluentd APT repository
-      apt_key:
-        url=http://packages.treasuredata.com/GPG-KEY-td-agent
-    - name: Install Fluentd APT repository
-      apt_repository:
-        repo="deb [arch=amd64] http://packages.treasuredata.com/2/ubuntu/trusty/ trusty contrib"
-    - name: Install Fluentd
-      apt: name={{ item }}
-      with_items:
-        - td-agent
-    - name: Install Fluentd plugins
-      gem:
-        executable=/usr/sbin/td-agent-gem
-        name={{ item }}
-        state=latest
-        user_install=no
-      with_items:
-        - fluent-plugin-record-reformer
-        - fluent-plugin-groonga
-      notify:
-        - Restart Fluentd
-    - name: Add "td-agent" user to "adm" groups
-      user:
-        name=td-agent
-        groups=adm
-    - name: Create directories
-      file:
-        path={{ item }}
-        state=directory
-        owner=td-agent
-        group=td-agent
-      with_items:
-        - /var/spool/td-agent/
-        - /var/spool/td-agent/buffer/
-    - name: Put fluentd.conf
-      copy:
-        src=files/fluentd/fluentd.conf
-        dest=/etc/td-agent/td-agent.conf
-      notify:
-        - Restart Fluentd
+    # # Fluentd
+    # - name: Install GPG key of Fluentd APT repository
+    #   apt_key:
+    #     url=http://packages.treasuredata.com/GPG-KEY-td-agent
+    # - name: Install Fluentd APT repository
+    #   apt_repository:
+    #     repo="deb [arch=amd64] http://packages.treasuredata.com/2/ubuntu/trusty/ trusty contrib"
+    # - name: Install Fluentd
+    #   apt: name={{ item }}
+    #   with_items:
+    #     - td-agent
+    # - name: Install Fluentd plugins
+    #   gem:
+    #     executable=/usr/sbin/td-agent-gem
+    #     name={{ item }}
+    #     state=latest
+    #     user_install=no
+    #   with_items:
+    #     - fluent-plugin-record-reformer
+    #     - fluent-plugin-groonga
+    #   notify:
+    #     - Restart Fluentd
+    # - name: Add "td-agent" user to "adm" groups
+    #   user:
+    #     name=td-agent
+    #     groups=adm
+    # - name: Create directories
+    #   file:
+    #     path={{ item }}
+    #     state=directory
+    #     owner=td-agent
+    #     group=td-agent
+    #   with_items:
+    #     - /var/spool/td-agent/
+    #     - /var/spool/td-agent/buffer/
+    # - name: Put fluentd.conf
+    #   copy:
+    #     src=files/fluentd/fluentd.conf
+    #     dest=/etc/td-agent/td-agent.conf
+    #   notify:
+    #     - Restart Fluentd
 
   handlers:
     - name: Restart Apache
