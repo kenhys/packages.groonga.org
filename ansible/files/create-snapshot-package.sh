@@ -26,6 +26,8 @@ run mkdir -p "${output_dir}"
 #rm -rf ~/work/nightly/
 #mkdir -p ~/work/nightly/
 
+PATH="/usr/local/bin:${PATH}"
+
 export PKG_CONFIG_PATH=$HOME/work/nightly/lib/pkgconfig
 
 build_mysql() {
