@@ -14,6 +14,7 @@
         - vim
         - zsh
         - lv
+        - acpid
     - name: Use VIM as the default editor
       command: update-alternatives --set editor /usr/bin/vim.basic
     - name: Use e-mail for apt-listchanges
