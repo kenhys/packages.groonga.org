@@ -105,7 +105,8 @@ package_mariadb_with_mroonga() {
   run make archive \
       GROONGA_VERSION=${groonga_version} \
       GROONGA_NORMALIZER_MYSQL_VERSION=${groonga_normalizer_mysql_version} \
-      > /dev/null
+      > make.archive.log \
+      2> make.archive.error.log
   for archive in files/mariadb-*.zip; do
     run rm -rf tmp
     run mkdir -p tmp
