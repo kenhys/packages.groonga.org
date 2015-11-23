@@ -1,11 +1,16 @@
 require "rake"
-require "rspec/core/rake_task"
 
-RSpec::Core::RakeTask.new(:spec) do |t|
-  t.pattern = "spec/**/*_spec.rb"
+begin
+  require "rspec/core/rake_task"
+rescue LoadError
+  puts("You need to install serverspec by 'gem install serverspec' for testing.")
+else
+  RSpec::Core::RakeTask.new(:spec) do |t|
+    t.pattern = "spec/**/*_spec.rb"
+  end
+
+  task :default => :spec
 end
-
-task :default => :spec
 
 desc "Apply the Ansible configurations"
 task :deploy do
