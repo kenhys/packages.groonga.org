@@ -1,4 +1,6 @@
 - hosts: package-servers
+  vars:
+    groonga_admin_version: 0.9.4
   sudo: yes
   tasks:
     # Base
@@ -141,8 +143,17 @@
       with_items:
         - groonga-bin
         - groonga-httpd
+    - name: Download Groonga Admin
+      get_url:
+        url=http://packages.groonga.org/source/groonga-admin/groonga-admin-{{ groonga_admin_version }}.tar.gz
+        dest=/usr/local/src/
+    - name: Install Groonga Admin
+      unarchive:
+        copy=no
+        src=/usr/local/src/groonga-admin-{{ groonga_admin_version }}.tar.gz
+        dest=/usr/local/share/
     - name: Put groonga-httpd configuration
-      copy:
+      template:
         src=files/groonga-httpd.conf
         dest=/etc/groonga/httpd/groonga-httpd.conf
       notify:
