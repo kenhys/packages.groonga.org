@@ -58,39 +58,44 @@ create_nightly_build() {
   if [ ! -d ${project_name} ]; then
     run git clone --quiet --recursive \
       https://github.com/${github_org}/${project_name}.git
-    run cd ${project_name}
-    run ./autogen.sh > /dev/null
-    run cd -
   else
     run cd ${project_name}
     run git checkout --quiet .
     run git pull --quiet --rebase
     run git submodule update --init
-    run ./autogen.sh > /dev/null
     run cd -
   fi
-  run cd ${project_name}
-  released_version=$(git describe --abbrev=0 | sed -e 's/^v//')
-  run cd -
-  version="${released_version}.${today}"
-  run rm -rf ${project_name}.build
-  run mkdir -p ${project_name}.build
-  run cd ${project_name}.build
-  run ../${project_name}/configure \
-    --prefix=$HOME/work/nightly \
-    "$@" \
-    > configure.log
-  run make > make.log 2> make.error.log
-  if [ "$need_install" = "yes" ]; then
-    run make install > /dev/null
+  if [ "${project_name}" = "pgroonga" ]; then
+    run cd ${project_name}
+    current_version=$(grep default_version pgroonga.control | \
+                         sed -r -e 's/^.*([0-9]+\.[0-9]+\.[0-9]).*$/\1/g')
+    version="${current_version}.${today}"
+    run rake2.1 dist SUFFIX=".${today}"
+  else
+    run cd ${project_name}
+    released_version=$(git describe --abbrev=0 | sed -e 's/^v//')
+    version="${released_version}.${today}"
+    run ./autogen.sh > /dev/null
+    run cd -
+    run rm -rf ${project_name}.build
+    run mkdir -p ${project_name}.build
+    run cd ${project_name}.build
+    run ../${project_name}/configure \
+        --prefix=$HOME/work/nightly \
+        "$@" \
+        > configure.log
+    run make > make.log 2> make.error.log
+    if [ "$need_install" = "yes" ]; then
+      run make install > /dev/null
+    fi
+    run make dist > /dev/null
+    run mkdir -p tmp
+    cd tmp
+    run tar xf ../*.tar.gz
+    run mv ${project_name}-* ${project_name}-${version}
+    run tar cfz ${project_name}-${version}.tar.gz ${project_name}-${version}
   fi
-  run make dist > /dev/null
-  run mkdir -p tmp
-  cd tmp
-  run tar xf ../*.tar.gz
-  run mv ${project_name}-* ${project_name}-${version}
-  run tar cfz ${project_name}-${version}.tar.gz ${project_name}-${version}
-  run mv ${project_name}-${version}.tar.gz ~/public/nightly/
+  run mv ${project_name}-${version}.* ~/public/nightly/
 }
 
 package_mariadb_with_mroonga() {
@@ -149,6 +154,7 @@ create_nightly_build mroonga mroonga no \
   --with-mysql-source="$HOME/work/${mysql_base}" \
   --with-mysql-config="$HOME/work/${mysql_base}/scripts/mysql_config"
 package_mariadb_with_mroonga
+create_nightly_build pgroonga pgroonga no
 
 run find "${output_dir}/" -maxdepth 1 -type f -ctime +${keep_n_days} -print0 | \
   run xargs --null --no-run-if-empty rm

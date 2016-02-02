@@ -121,6 +121,14 @@
         - virtualbox
         - vagrant
         - rpm
+    - name: Install RubyGems for nightly package builder
+      gem:
+        name={{ item }}
+        user_install=no
+      with_items:
+        - rake
+        - octokit
+        - archive-zip
     - name: Install nightly package builder
       copy:
         src=files/create-snapshot-package.sh
