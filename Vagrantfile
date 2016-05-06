@@ -7,8 +7,8 @@ VAGRANTFILE_API_VERSION = "2"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   name = "packages.groonga.org"
   config.vm.define(name) do |node|
-    node.vm.box = "ubuntu-15.04-x86_64"
-    node.vm.box_url = "http://opscode-vm-bento.s3.amazonaws.com/vagrant/virtualbox/opscode_ubuntu-15.04_chef-provisionerless.box"
+    node.vm.box = "ubuntu-16.04-x86_64"
+    node.vm.box_url = "http://opscode-vm-bento.s3.amazonaws.com/vagrant/virtualbox/opscode_ubuntu-16.04_chef-provisionerless.box"
     node.vm.network "public_network"
     node.vm.provision :ansible do |ansible|
       ansible.playbook = "ansible/playbook.yml"
