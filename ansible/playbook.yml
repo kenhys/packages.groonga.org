@@ -228,6 +228,9 @@
     - name: Restart Postfix
       service: name=postfix state=restarted
     - name: Restart Groonga
-      service: name=groonga-httpd state=restarted
+      service:
+        name: groonga-httpd
+        state: restarted
+        enabled: yes
     - name: Restart Fluentd
       service: name=td-agent state=restarted
