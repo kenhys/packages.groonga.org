@@ -145,7 +145,8 @@
 
     # Groonga
     - name: Enable Groonga APT repository
-      apt_repository: repo=ppa:groonga/ppa
+      apt_repository:
+        repo: ppa:groonga/ppa
     - name: Install groonga-httpd
       apt: name={{ item }}
       with_items:
