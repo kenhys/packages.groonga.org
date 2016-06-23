@@ -70,7 +70,7 @@ create_nightly_build() {
     current_version=$(grep default_version pgroonga.control | \
                          sed -r -e 's/^.*([0-9]+\.[0-9]+\.[0-9]).*$/\1/g')
     version="${current_version}.${today}"
-    run rake2.1 dist SUFFIX=".${today}" > rake.log 2> rake.error.log
+    run rake dist SUFFIX=".${today}" > rake.log 2> rake.error.log
   else
     run cd ${project_name}
     released_version=$(git describe --abbrev=0 | sed -e 's/^v//')
