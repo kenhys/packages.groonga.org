@@ -58,6 +58,34 @@
         group=packages
         mode=0600
 
+    # Let's encrypt
+    - name: Install python-certbot
+      apt:
+        name: python-certbot
+    - name: "Check Let's Encrypt certificate"
+      stat:
+        path: /etc/letsencrypt/live/{{ inventory_hostname }}/fullchain.pem
+      register: certificate
+    - name: "Stop Apache before initializing Let's Encrypt certificate"
+      service:
+        name: apache2
+        state: stop
+      when: not certificate.stat.exists
+    - name: "Initialize Let's Encrypt certificate"
+      shell: |
+        certbot certonly \
+          --standalone \
+          --non-interactive \
+          --agree-tos \
+          --email groonga@groonga.org \
+          --domain {{ inventory_hostname }}
+      when: not certificate.stat.exists
+    - name: "Put Let's Encrypt update script"
+      copy:
+        src: etc/cron.daily/letsencrypt
+        dest: /etc/cron.daily/letsencrypt
+        mode: 0700
+
     # Apache
     - name: Install Apache
       apt: name=apache2
@@ -75,6 +103,12 @@
       command: a2ensite packages.groonga.org
     - name: Disable default Apache configuration
       command: a2dissite 000-default
+      notify:
+        - Restart Apache
+    - name: Enable Apache modules
+      command: a2enmod {{ item }}
+      with_items:
+        - ssl
       notify:
         - Restart Apache
 
