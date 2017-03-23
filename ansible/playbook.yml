@@ -69,7 +69,7 @@
     - name: "Stop Apache before initializing Let's Encrypt certificate"
       service:
         name: apache2
-        state: stop
+        state: stopped
       when: not certificate.stat.exists
     - name: "Initialize Let's Encrypt certificate"
       shell: |
