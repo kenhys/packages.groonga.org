@@ -181,7 +181,7 @@
     #     - groonga-httpd
     # - name: Download Groonga Admin
     #   get_url:
-    #     url=http://packages.groonga.org/source/groonga-admin/groonga-admin-{{ groonga_admin_version }}.tar.gz
+    #     url=https://packages.groonga.org/source/groonga-admin/groonga-admin-{{ groonga_admin_version }}.tar.gz
     #     dest=/usr/local/src/
     # - name: Install Groonga Admin
     #   unarchive:
