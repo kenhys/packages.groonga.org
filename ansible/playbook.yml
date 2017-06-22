@@ -1,6 +1,6 @@
 - hosts: package-servers
   vars:
-    groonga_admin_version: 0.9.4
+    groonga_admin_version: 0.9.5
   become: yes
   tasks:
     # Base
@@ -12,6 +12,7 @@
     - name: Install base packages
       apt: name={{ item }}
       with_items:
+        - cron
         - apt-listchanges
         - vim
         - zsh
@@ -93,12 +94,6 @@
       copy:
         src=files/packages.groonga.org.conf
         dest=/etc/apache2/sites-available/packages.groonga.org.conf
-    - name: Put footer file
-      copy:
-        src=files/footer.html
-        dest=/home/packages/public/footer.html
-        owner=packages
-        group=packages
     - name: Enable our Apache configuration
       command: a2ensite packages.groonga.org
     - name: Disable default Apache configuration
@@ -133,127 +128,125 @@
         - Restart Postfix
 
     # Nightly package builder
-    - name: Install packages for nightly package builder
-      apt: name={{ item }}
-      with_items:
-        - git
-        - zsh
-        - autoconf
-        - pkg-config
-        - libtool
-        - gcc
-        - g++
-        - make
-        - cmake
-        - bison
-        - python-sphinx
-        - gettext
-        - ruby
-        - libncurses5-dev
-        - curl
-        - zip
-        - virtualbox
-        - vagrant
-        - rpm
-    - name: Install RubyGems for nightly package builder
-      gem:
-        name={{ item }}
-        user_install=no
-      with_items:
-        - rake
-        - octokit
-        - archive-zip
-    - name: Install nightly package builder
-      copy:
-        src=files/create-snapshot-package.sh
-        dest=/home/packages/bin/
-        owner=packages
-        group=packages
-        mode=0755
-    - name: Install cron
-      cron:
-        special_time: daily
-        name: Create nightly package
-        job: ~packages/bin/create-snapshot-package.sh
-        user: packages
+    # - name: Install packages for nightly package builder
+    #   apt: name={{ item }}
+    #   with_items:
+    #     - git
+    #     - zsh
+    #     - autoconf
+    #     - pkg-config
+    #     - libtool
+    #     - gcc
+    #     - g++
+    #     - make
+    #     - cmake
+    #     - bison
+    #     - python-sphinx
+    #     - gettext
+    #     - ruby
+    #     - libncurses5-dev
+    #     - curl
+    #     - zip
+    #     - rpm
+    # - name: Install RubyGems for nightly package builder
+    #   gem:
+    #     name={{ item }}
+    #     user_install=no
+    #   with_items:
+    #     - rake
+    #     - octokit
+    #     - archive-zip
+    # - name: Install nightly package builder
+    #   copy:
+    #     src=files/create-snapshot-package.sh
+    #     dest=/home/packages/bin/
+    #     owner=packages
+    #     group=packages
+    #     mode=0755
+    # - name: Install cron
+    #   cron:
+    #     special_time: daily
+    #     name: Create nightly package
+    #     job: ~packages/bin/create-snapshot-package.sh
+    #     user: packages
 
-    # Groonga
-    - name: Enable Groonga APT repository
-      apt_repository:
-        repo: ppa:groonga/ppa
-    - name: Install groonga-httpd
-      apt: name={{ item }}
-      with_items:
-        - groonga-bin
-        - groonga-httpd
-    - name: Download Groonga Admin
-      get_url:
-        url=http://packages.groonga.org/source/groonga-admin/groonga-admin-{{ groonga_admin_version }}.tar.gz
-        dest=/usr/local/src/
-    - name: Install Groonga Admin
-      unarchive:
-        copy=no
-        src=/usr/local/src/groonga-admin-{{ groonga_admin_version }}.tar.gz
-        dest=/usr/local/share/
-    - name: Put groonga-httpd configuration
-      template:
-        src=files/groonga-httpd.conf
-        dest=/etc/groonga/httpd/groonga-httpd.conf
-      notify:
-        - Restart Groonga
+    # # Groonga
+    # - name: Enable Groonga APT repository
+    #   apt_repository:
+    #     repo: ppa:groonga/ppa
+    # - name: Install groonga-httpd
+    #   apt: name={{ item }}
+    #   with_items:
+    #     - groonga-bin
+    #     - groonga-httpd
+    # - name: Download Groonga Admin
+    #   get_url:
+    #     url=http://packages.groonga.org/source/groonga-admin/groonga-admin-{{ groonga_admin_version }}.tar.gz
+    #     dest=/usr/local/src/
+    # - name: Install Groonga Admin
+    #   unarchive:
+    #     copy=no
+    #     src=/usr/local/src/groonga-admin-{{ groonga_admin_version }}.tar.gz
+    #     dest=/usr/local/share/
+    # - name: Put groonga-httpd configuration
+    #   template:
+    #     src=files/groonga-httpd.conf
+    #     dest=/etc/groonga/httpd/groonga-httpd.conf
+    #   notify:
+    #     - Restart Groonga
 
-    # Fluentd
-    - name: Install GPG key of Fluentd APT repository
-      apt_key:
-        url=http://packages.treasuredata.com/GPG-KEY-td-agent
-    - name: Install Fluentd APT repository
-      apt_repository:
-        repo="deb [arch=amd64] http://packages.treasuredata.com/2/ubuntu/trusty/ trusty contrib"
-    - name: Install Fluentd
-      apt: name={{ item }}
-      with_items:
-        - td-agent
-    - name: Install Fluentd plugins
-      gem:
-        executable=/usr/sbin/td-agent-gem
-        name={{ item }}
-        state=latest
-        user_install=no
-      with_items:
-        - fluent-plugin-anonymizer
-        - fluent-plugin-groonga
-        - fluent-plugin-parser
-      notify:
-        - Restart Fluentd
-    - name: Add "td-agent" user to "adm" groups
-      user:
-        name=td-agent
-        groups=adm
-    - name: Create directories
-      file:
-        path={{ item }}
-        state=directory
-        owner=td-agent
-        group=td-agent
-      with_items:
-        - /var/spool/td-agent/
-        - /var/spool/td-agent/buffer/
-    - name: Ensure salt for fluent-plugin-anonymizer
-      shell: apg -a 1 -n 1 -m 20 > /etc/td-agent/anonymizer-salt.txt
-      args:
-        creates: /etc/td-agent/anonymizer-salt.txt
-    - name: Set permission for salt file
-      file:
-        path=/etc/td-agent/anonymizer-salt.txt
-        mode=0600
-        owner=td-agent
-        group=td-agent
-    - name: Put fluentd.conf
-      copy:
-        src=files/fluentd/fluentd.conf
-        dest=/etc/td-agent/td-agent.conf
-      notify:
-        - Restart Fluentd
+    # # Fluentd
+    # - name: Install GPG key of Fluentd APT repository
+    #   apt_key:
+    #     url=http://packages.treasuredata.com/GPG-KEY-td-agent
+    # - name: Install Fluentd APT repository
+    #   apt_repository:
+    #     repo="deb [arch=amd64] http://packages.treasuredata.com/2/ubuntu/trusty/ trusty contrib"
+    # - name: Install Fluentd
+    #   apt: name={{ item }}
+    #   with_items:
+    #     - td-agent
+    # - name: Install Fluentd plugins
+    #   gem:
+    #     executable=/usr/sbin/td-agent-gem
+    #     name={{ item }}
+    #     state=latest
+    #     user_install=no
+    #   with_items:
+    #     - fluent-plugin-anonymizer
+    #     - fluent-plugin-groonga
+    #     - fluent-plugin-parser
+    #   notify:
+    #     - Restart Fluentd
+    # - name: Add "td-agent" user to "adm" groups
+    #   user:
+    #     name=td-agent
+    #     groups=adm
+    # - name: Create directories
+    #   file:
+    #     path={{ item }}
+    #     state=directory
+    #     owner=td-agent
+    #     group=td-agent
+    #   with_items:
+    #     - /var/spool/td-agent/
+    #     - /var/spool/td-agent/buffer/
+    # - name: Ensure salt for fluent-plugin-anonymizer
+    #   shell: apg -a 1 -n 1 -m 20 > /etc/td-agent/anonymizer-salt.txt
+    #   args:
+    #     creates: /etc/td-agent/anonymizer-salt.txt
+    # - name: Set permission for salt file
+    #   file:
+    #     path=/etc/td-agent/anonymizer-salt.txt
+    #     mode=0600
+    #     owner=td-agent
+    #     group=td-agent
+    # - name: Put fluentd.conf
+    #   copy:
+    #     src=files/fluentd/fluentd.conf
+    #     dest=/etc/td-agent/td-agent.conf
+    #   notify:
+    #     - Restart Fluentd
 
   handlers:
     - name: Restart Apache
