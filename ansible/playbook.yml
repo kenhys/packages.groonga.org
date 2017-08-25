@@ -19,6 +19,7 @@
         - lv
         - acpid
         - apg
+        - logrotate
     - name: Use VIM as the default editor
       command: update-alternatives --set editor /usr/bin/vim.basic
     - name: Use e-mail for apt-listchanges
@@ -92,8 +93,10 @@
       apt: name=apache2
     - name: Put Apache configuration
       copy:
-        src=files/packages.groonga.org.conf
-        dest=/etc/apache2/sites-available/packages.groonga.org.conf
+        src: "{{ item }}"
+        dest: /{{ item }}
+      with_items:
+        - etc/apache2/sites-available/packages.groonga.org.conf
     - name: Enable our Apache configuration
       command: a2ensite packages.groonga.org
     - name: Disable default Apache configuration
