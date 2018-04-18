@@ -24,7 +24,7 @@
       command: update-alternatives --set editor /usr/bin/vim.basic
     - name: Use e-mail for apt-listchanges
       copy:
-        src=files/listchanges.conf
+        src=etc/apt/listchanges.conf
         dest=/etc/apt/listchanges.conf
 
     # User
@@ -54,7 +54,7 @@
         mode=0700
     - name: Put ~packages/.ssh/authorized_keys
       copy:
-        src=files/authorized_keys
+        src=home/packages/.ssh/authorized_keys
         dest=~packages/.ssh/authorized_keys
         owner=packages
         group=packages
@@ -115,7 +115,7 @@
       apt: name=postfix
     - name: Set /etc/aliases
       copy:
-        src=files/aliases
+        src=etc/aliases
         dest=/etc/aliases
       notify:
         - Update /etc/aliases
@@ -125,7 +125,7 @@
         dest=/etc/mailname
     - name: Put Postfix configuration
       copy:
-        src=files/main.cf
+        src=etc/postfix/main.cf
         dest=/etc/postfix/main.cf
       notify:
         - Restart Postfix
@@ -161,7 +161,7 @@
     #     - archive-zip
     # - name: Install nightly package builder
     #   copy:
-    #     src=files/create-snapshot-package.sh
+    #     src=home/packages/create-snapshot-package.sh
     #     dest=/home/packages/bin/
     #     owner=packages
     #     group=packages
@@ -193,7 +193,7 @@
     #     dest=/usr/local/share/
     # - name: Put groonga-httpd configuration
     #   template:
-    #     src=files/groonga-httpd.conf
+    #     src=etc/groonga/httpd/groonga-httpd.conf.j2
     #     dest=/etc/groonga/httpd/groonga-httpd.conf
     #   notify:
     #     - Restart Groonga
@@ -246,7 +246,7 @@
     #     group=td-agent
     # - name: Put fluentd.conf
     #   copy:
-    #     src=files/fluentd/fluentd.conf
+    #     src=etc/td-agent/td-agent.conf
     #     dest=/etc/td-agent/td-agent.conf
     #   notify:
     #     - Restart Fluentd
