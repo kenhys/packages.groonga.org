@@ -110,6 +110,10 @@
         - ssl
       notify:
         - Restart Apache
+    - name: Set log rotation
+      copy:
+        src: etc/logrotate.d/apache2
+        dest: /etc/logrotate.d/apache2
 
     # Postfix
     - name: Install Postfix
