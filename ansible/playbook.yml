@@ -136,47 +136,47 @@
         - Restart Postfix
 
     # Nightly package builder
-    # - name: Install packages for nightly package builder
-    #   apt: name={{ item }}
-    #   with_items:
-    #     - git
-    #     - zsh
-    #     - autoconf
-    #     - pkg-config
-    #     - libtool
-    #     - gcc
-    #     - g++
-    #     - make
-    #     - cmake
-    #     - bison
-    #     - python-sphinx
-    #     - gettext
-    #     - ruby
-    #     - libncurses5-dev
-    #     - curl
-    #     - zip
-    #     - rpm
-    # - name: Install RubyGems for nightly package builder
-    #   gem:
-    #     name={{ item }}
-    #     user_install=no
-    #   with_items:
-    #     - rake
-    #     - octokit
-    #     - archive-zip
-    # - name: Install nightly package builder
-    #   copy:
-    #     src=home/packages/create-snapshot-package.sh
-    #     dest=/home/packages/bin/
-    #     owner=packages
-    #     group=packages
-    #     mode=0755
-    # - name: Install cron
-    #   cron:
-    #     special_time: daily
-    #     name: Create nightly package
-    #     job: ~packages/bin/create-snapshot-package.sh
-    #     user: packages
+    - name: Install packages for nightly package builder
+      apt: name={{ item }}
+      with_items:
+        - git
+        - zsh
+        - autoconf
+        - pkg-config
+        - libtool
+        - gcc
+        - g++
+        - make
+        - cmake
+        - bison
+        - python-sphinx
+        - gettext
+        - ruby
+        - libncurses5-dev
+        - curl
+        - zip
+        - rpm
+    - name: Install RubyGems for nightly package builder
+      gem:
+        name={{ item }}
+        user_install=no
+      with_items:
+        - rake
+        - octokit
+        - archive-zip
+    - name: Install nightly package builder
+      copy:
+        src=home/packages/bin/create-snapshot-package.sh
+        dest=/home/packages/bin/
+        owner=packages
+        group=packages
+        mode=0755
+    - name: Install cron
+      cron:
+        special_time: daily
+        name: Create nightly package
+        job: ~packages/bin/create-snapshot-package.sh
+        user: packages
 
     # # Groonga
     # - name: Enable Groonga APT repository
