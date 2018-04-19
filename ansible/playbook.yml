@@ -12,14 +12,15 @@
     - name: Install base packages
       apt: name={{ item }}
       with_items:
-        - cron
-        - apt-listchanges
-        - vim
-        - zsh
-        - lv
         - acpid
         - apg
+        - apt-listchanges
+        - cron
+        - git
         - logrotate
+        - lv
+        - vim
+        - zsh
     - name: Use VIM as the default editor
       command: update-alternatives --set editor /usr/bin/vim.basic
     - name: Use e-mail for apt-listchanges
