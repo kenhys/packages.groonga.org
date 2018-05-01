@@ -13,7 +13,7 @@ run()
 }
 
 keep_n_days=7
-mysql_version=5.6.21
+mysql_version=5.6.40
 
 today=$(date +%Y.%m.%d)
 mysql_base="mysql-${mysql_version}"
