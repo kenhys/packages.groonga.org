@@ -155,6 +155,7 @@
         - libncurses5-dev
         - curl
         - zip
+        - zlib1g-dev
         - rpm
     - name: Install RubyGems for nightly package builder
       gem:
