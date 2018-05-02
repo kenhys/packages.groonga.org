@@ -149,7 +149,7 @@
         - make
         - cmake
         - bison
-        - python3-sphinx
+        - python3-pip
         - gettext
         - ruby
         - libncurses5-dev
@@ -164,6 +164,11 @@
         - rake
         - octokit
         - archive-zip
+    - name: Install Sphinx for nightly package builder
+      pip:
+        executable: pip3
+        name: Sphinx
+        state: latest
     - name: Install nightly package builder
       copy:
         src=home/packages/bin/create-snapshot-package.sh

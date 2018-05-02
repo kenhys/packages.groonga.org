@@ -13,7 +13,7 @@ run()
 }
 
 keep_n_days=7
-mysql_version=5.6.40
+mysql_version=5.7.22
 
 today=$(date +%Y.%m.%d)
 mysql_base="mysql-${mysql_version}"
@@ -38,7 +38,7 @@ build_mysql() {
 
   mysql_tar_gz="${mysql_base}.tar.gz"
   if [ ! -f "${mysql_tar_gz}" ]; then
-    download_base=http://ftp.jaist.ac.jp/pub/mysql/Downloads/MySQL-5.6
+    download_base=http://ftp.jaist.ac.jp/pub/mysql/Downloads/MySQL-5.7
     run wget --quiet "${download_base}/${mysql_tar_gz}"
   fi
 
