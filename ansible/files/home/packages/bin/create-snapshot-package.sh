@@ -45,7 +45,11 @@ build_mysql() {
   run tar xf "${mysql_tar_gz}"
   run cd "${mysql_base}"
   run rm -rf CMakeCache.txt
-  run cmake . -DWITH_DEBUG=yes -DCMAKE_INSTALL_PREFIX=$HOME/work/nightly \
+  run cmake . \
+      -DWITH_DEBUG=yes \
+      -DCMAKE_INSTALL_PREFIX=$HOME/work/nightly \
+      -DDOWNLOAD_BOOST=1 \
+      -DWITH_BOOST=$HOME/work/boost \
     > cmake.log
   run make > make.log 2> make.error.log
 }
