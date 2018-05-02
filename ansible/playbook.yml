@@ -149,7 +149,7 @@
         - make
         - cmake
         - bison
-        - python-sphinx
+        - python3-sphinx
         - gettext
         - ruby
         - libncurses5-dev
