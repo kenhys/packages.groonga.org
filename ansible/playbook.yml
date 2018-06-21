@@ -62,9 +62,9 @@
         mode=0600
 
     # Let's encrypt
-    - name: Install python-certbot
+    - name: Install certbot
       apt:
-        name: python-certbot
+        name: certbot
     - name: "Check Let's Encrypt certificate"
       stat:
         path: /etc/letsencrypt/live/{{ inventory_hostname }}/fullchain.pem
