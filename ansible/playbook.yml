@@ -142,6 +142,7 @@
         - git
         - zsh
         - autoconf
+        - autoconf-archive
         - pkg-config
         - libtool
         - gcc
