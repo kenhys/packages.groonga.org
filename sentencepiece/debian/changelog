@@ -1,0 +1,5 @@
+sentencepiece (0.1.83-Source-1) unstable; urgency=medium
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Kentaro Hayashi <hayashi@clear-code.com>  Fri, 23 Aug 2019 18:27:54 +0900
