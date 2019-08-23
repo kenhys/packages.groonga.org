@@ -8,17 +8,24 @@ Homepage: <insert the upstream URL, if relevant>
 #Vcs-Browser: https://salsa.debian.org/debian/sentencepiece
 #Vcs-Git: https://salsa.debian.org/debian/sentencepiece.git
 
-Package: sentencepiece-dev
+Package: libgoogle-sentencepiece-dev
 Section: libdevel
 Architecture: any
 Multi-Arch: same
-Depends: sentencepieceBROKEN (= ${binary:Version}), ${misc:Depends}
+Depends: libgoogle-sentencepiece (= ${binary:Version}), ${misc:Depends}
 Description: <insert up to 60 chars description>
  <insert long description, indented with spaces>
 
-Package: sentencepieceBROKEN
+Package: libgoogle-sentencepiece
 Architecture: any
 Multi-Arch: same
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>
+
+Package: libgoogle-sentencepiece-tools
+Architecture: any
+Multi-Arch: same
+Depends: libgoogle-sentencepiece (= ${binary:Version}), ${misc:Depends}
 Description: <insert up to 60 chars description>
  <insert long description, indented with spaces>
