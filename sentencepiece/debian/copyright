@@ -22,6 +22,10 @@ Files: third_party/protobuf-lite/*
 Copyright: 2008 Google Inc.
 License: BSD-3-clause
 
+License: Apache-2.0
+ On Debian systems the full text of the Apache Software License 2.0 can be
+ found in the `/usr/share/common-licenses/Apache-2.0' file.
+
 License: BSD-3-clause
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are
