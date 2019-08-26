@@ -15,19 +15,21 @@ Section: libdevel
 Architecture: any
 Multi-Arch: same
 Depends: libsentencepiece (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Description: The development package for SentencePiece
+ The SentencePiece is an unsupervised text tokenizer for Neural Network-based text generation.
+ This package contains header files to develop a software using SentencePiece.
 
 Package: libsentencepiece
 Architecture: any
 Multi-Arch: same
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Description: The library package for SentencePiece
+ The SentencePiece is an unsupervised text tokenizer for Neural Network-based text generation.
+ This package contains runtime libraries for SentencePiece.
 
 Package: libsentencepiece-tools
 Architecture: any
-Multi-Arch: same
 Depends: libsentencepiece (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Description: The tool collection package for SentencePiece
+ The SentencePiece is an unsupervised text tokenizer for Neural Network-based text generation.
+ This package contains tools for manipulate models for SentencePiece.
