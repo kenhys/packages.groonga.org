@@ -4,3 +4,7 @@
 %:
 	dh $@ --buildsystem=cmake
 
+# Set -DCMAKE_INSTALL_LIBDIR explicitly because install DESTINATION (src/cmake_install.cmake)
+# is not correctly set on Ubuntu 18.04.
+override_dh_auto_configure:
+	dh_auto_configure -- -DCMAKE_INSTALL_LIBDIR=lib/$(DEB_HOST_MULTIARCH)
