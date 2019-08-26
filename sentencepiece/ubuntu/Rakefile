@@ -1,12 +1,31 @@
 require "rake"
+require "octokit"
+require "open-uri"
 
 UBUNTU_CODE_NAMES = "xenial,bionic,disco"
 UBUNTU_VERSIONS = "16.04,18.04,19.04"
 PACKAGE = "sentencepiece"
-VERSION = "0.1.83"
-SOURCE = "#{PACKAGE}-#{VERSION}-Source.tar.xz"
+LAUNCHPAD_PPA = "groonga-ppa"
 
-LAUNCHPAD_PPA = "groonga-nightly"
+client = Octokit::Client.new
+releases = client.releases("google/sentencepiece")
+current_release = releases.find do |release|
+  release.tag_name
+end
+version = current_release.tag_name.sub(/v/, "")
+archive_name = "#{PACKAGE}-#{version}-Source.tar.xz"
+
+desc "Download SentencePiece source packages"
+task :download do
+  download_url_base = "https://github.com/google/sentencepiece/releases/download"
+  download_url = "#{download_url_base}/#{current_release.tag_name}/#{archive_name}"
+  puts "Download #{download_url}"
+  open(download_url) do |downloaded_file|
+    open("#{archive_name}", "wb") do |output_file|
+      output_file.print(downloaded_file.read)
+    end
+  end
+end
 
 desc "Upload SentencePiece source packages"
 task :upload do
@@ -23,8 +42,8 @@ task :upload do
   end
   sh(upload_script,
      "--package", PACKAGE,
-     "--version", VERSION,
-     "--source-archive", SOURCE,
+     "--version", version,
+     "--source-archive", archive_name,
      "--ubuntu-code-names", UBUNTU_CODE_NAMES,
      "--ubuntu-versions", UBUNTU_VERSIONS,
      "--debian-directory", "../debian/",
