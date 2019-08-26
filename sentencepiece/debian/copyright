@@ -16,7 +16,7 @@ License: BSD-3-clause
 
 Files: third_party/esaxx/*
 Copyright: 2010 Daisuke Okanohara
-License: MIT/X11 (BSD like)
+License: MIT
 
 Files: third_party/protobuf-lite/*
 Copyright: 2008 Google Inc.
