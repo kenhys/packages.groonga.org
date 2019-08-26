@@ -1,0 +1,41 @@
+Source: sentencepiece
+Priority: optional
+Maintainer: Kentaro Hayashi <hayashi@clear-code.com>
+Build-Depends:
+ debhelper (>= 9),
+ cmake,
+ pkg-config,
+ libgoogle-perftools-dev
+Standards-Version: 3.9.8
+Section: libs
+Homepage: https://github.com/google/sentencepiece
+
+Package: libsentencepiece-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends: libsentencepiece (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Description: Development package for SentencePiece
+ The SentencePiece is an unsupervised text tokenizer for Neural Network-based
+ text generation.
+ .
+ This package contains header files to develop a software using SentencePiece.
+
+Package: libsentencepiece
+Architecture: any
+Multi-Arch: same
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Library package for SentencePiece
+ The SentencePiece is an unsupervised text tokenizer for Neural Network-based
+ text generation.
+ .
+ This package contains runtime libraries for SentencePiece.
+
+Package: libsentencepiece-tools
+Architecture: any
+Depends: libsentencepiece (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Description: Tool collection package for SentencePiece
+ The SentencePiece is an unsupervised text tokenizer for Neural Network-based
+ text generation.
+ .
+ This package contains tools for manipulate models for SentencePiece.
