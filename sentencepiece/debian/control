@@ -9,8 +9,6 @@ Build-Depends:
 Standards-Version: 3.9.8
 Section: libs
 Homepage: https://github.com/google/sentencepiece
-#Vcs-Browser: https://salsa.debian.org/debian/sentencepiece
-#Vcs-Git: https://salsa.debian.org/debian/sentencepiece.git
 
 Package: libsentencepiece-dev
 Section: libdevel
