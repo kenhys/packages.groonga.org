@@ -1,0 +1,33 @@
+require "rake"
+
+UBUNTU_CODE_NAMES = "xenial,bionic,disco"
+UBUNTU_VERSIONS = "16.04,18.04,19.04"
+PACKAGE = "sentencepiece"
+VERSION = "0.1.83"
+SOURCE = "#{PACKAGE}-#{VERSION}-Source.tar.xz"
+
+LAUNCHPAD_PPA = "groonga-nightly"
+
+desc "Upload SentencePiece source packages"
+task :upload do
+  upload_script = ENV["UPLOAD_SCRIPT_PATH"]
+  unless upload_script
+    puts "Set UPLOAD_SCRIPT_PATH (e.g. $HOME/work/groonga/groonga/packages/ubuntu/upload.rb)"
+    exit 1
+  end
+
+  pgp_sign_key = ENV["LAUNCHPAD_UPLOADER_PGP_KEY"]
+  unless pgp_sign_key
+    puts "Set LAUNCHPAD_UPLOADER_PGP_KEY for signing"
+    exit 1
+  end
+  sh(upload_script,
+     "--package", PACKAGE,
+     "--version", VERSION,
+     "--source-archive", SOURCE,
+     "--ubuntu-code-names", UBUNTU_CODE_NAMES,
+     "--ubuntu-versions", UBUNTU_VERSIONS,
+     "--debian-directory", "../debian/",
+     "--ppa", LAUNCHPAD_PPA,
+     "--pgp-sign-key", pgp_sign_key)
+end
