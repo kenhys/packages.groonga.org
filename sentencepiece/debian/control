@@ -8,7 +8,7 @@ Build-Depends:
  libgoogle-perftools-dev
 Standards-Version: 3.9.8
 Section: libs
-Homepage: <insert the upstream URL, if relevant>
+Homepage: https://github.com/google/sentencepiece
 #Vcs-Browser: https://salsa.debian.org/debian/sentencepiece
 #Vcs-Git: https://salsa.debian.org/debian/sentencepiece.git
 
