@@ -16,7 +16,7 @@ Package: libsentencepiece-dev
 Section: libdevel
 Architecture: any
 Multi-Arch: same
-Depends: libsentencepiece (= ${binary:Version}), ${shlibs: Depends}, ${misc:Depends}
+Depends: libsentencepiece (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: <insert up to 60 chars description>
  <insert long description, indented with spaces>
 
@@ -30,6 +30,6 @@ Description: <insert up to 60 chars description>
 Package: libsentencepiece-tools
 Architecture: any
 Multi-Arch: same
-Depends: libsentencepiece (= ${binary:Version}), ${shlibs: Depends}, ${misc:Depends}
+Depends: libsentencepiece (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: <insert up to 60 chars description>
  <insert long description, indented with spaces>
