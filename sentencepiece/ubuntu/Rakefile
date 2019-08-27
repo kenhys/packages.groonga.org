@@ -29,14 +29,12 @@ desc "Upload SentencePiece source packages"
 task :upload do
   upload_script = ENV["UPLOAD_SCRIPT_PATH"]
   unless upload_script
-    puts "Set UPLOAD_SCRIPT_PATH (e.g. $HOME/work/groonga/groonga/packages/ubuntu/upload.rb)"
-    exit 1
+    raise "Set UPLOAD_SCRIPT_PATH (e.g. $HOME/work/groonga/groonga/packages/ubuntu/upload.rb)"
   end
 
   pgp_sign_key = ENV["LAUNCHPAD_UPLOADER_PGP_KEY"]
   unless pgp_sign_key
-    puts "Set LAUNCHPAD_UPLOADER_PGP_KEY for signing"
-    exit 1
+    raise "Set LAUNCHPAD_UPLOADER_PGP_KEY for signing"
   end
   sh(upload_script,
      "--package", PACKAGE,
