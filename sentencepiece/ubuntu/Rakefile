@@ -9,9 +9,7 @@ LAUNCHPAD_PPA = "groonga-ppa"
 
 client = Octokit::Client.new
 releases = client.releases("google/sentencepiece")
-current_release = releases.find do |release|
-  release.tag_name
-end
+current_release = releases.first
 version = current_release.tag_name.sub(/v/, "")
 archive_name = "#{PACKAGE}-#{version}-Source.tar.xz"
 
