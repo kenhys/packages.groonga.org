@@ -1,0 +1,53 @@
+require "rake"
+require "octokit"
+
+package_task = ENV["RED_DATA_TOOLS_REPOSITORY"] + "/vendor/arrow/dev/tasks/linux-packages/package-task"
+
+ENV["APT_TARGETS"] ||= "debian-buster"
+
+require "#{package_task}"
+
+class SentencePiecePackageTask < PackageTask
+  def initialize
+    super("sentencepiece", detect_version, nil)
+  end
+
+  private
+  def source_dir
+    File.join(__dir__, "sentencepiece-#{@version}")
+  end
+
+  def detect_version
+    @client = Octokit::Client.new
+    releases = @client.releases("google/sentencepiece")
+    current_release = releases.first
+    @tag_name = current_release.tag_name
+    @version = @tag_name.sub(/v/, "")
+    @version
+  end
+
+  def define_archive_task
+    archive_base_name = "sentencepiece-#{@version}"
+    archive_name = "#{archive_base_name}-Source.tar.xz"
+    file "#{archive_base_name}.tar.gz" do
+      download_archive
+    end
+  end
+
+  def download_archive
+    archive_name = "sentencepiece-#{@version}-Source.tar.xz"
+    base_url = "https://github.com/google/sentencepiece/releases/download"
+    download_url = "#{base_url}/#{@tag_name}/#{archive_name}"
+    download(download_url, archive_name)
+    repack_archive(archive_name)
+  end
+
+  def repack_archive(archive_name)
+    sh("tar", "xf", archive_name)
+    sh("mv", "sentencepiece-#{@version}-Source", "sentencepiece-#{@version}")
+    sh("tar", "czvf", "sentencepiece-#{@version}.tar.gz", "sentencepiece-#{@version}")
+  end
+end
+
+task = SentencePiecePackageTask.new
+task.define
