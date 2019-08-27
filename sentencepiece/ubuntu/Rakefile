@@ -20,7 +20,7 @@ task :download do
   puts "Download #{download_url}"
   open(download_url) do |downloaded_file|
     open("#{archive_name}", "wb") do |output_file|
-      output_file.print(downloaded_file.read)
+      IO.copy_stream(downloaded_file, output_file)
     end
   end
 end
