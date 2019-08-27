@@ -7,19 +7,34 @@ UBUNTU_VERSIONS = "16.04,18.04,19.04"
 PACKAGE = "sentencepiece"
 LAUNCHPAD_PPA = "groonga-ppa"
 
-client = Octokit::Client.new
-releases = client.releases("google/sentencepiece")
-current_release = releases.first
-version = current_release.tag_name.sub(/\Av/, "")
-archive_name = "#{PACKAGE}-#{version}-Source.tar.xz"
+class Archive
+  def initialize
+    client = Octokit::Client.new
+    releases = client.releases("google/sentencepiece")
+    @current_release = releases.first
+  end
+
+  def tag_name
+    @current_release.tag_name
+  end
+
+  def version
+    tag_name.sub(/\Av/, "")
+  end
+
+  def path
+    "#{PACKAGE}-#{version}-Source.tar.xz"
+  end
+end
 
 desc "Download SentencePiece source packages"
 task :download do
+  archive = Archive.new
   download_url_base = "https://github.com/google/sentencepiece/releases/download"
-  download_url = "#{download_url_base}/#{current_release.tag_name}/#{archive_name}"
+  download_url = "#{download_url_base}/#{archive.tag_name}/#{archive.path}"
   puts "Download #{download_url}"
   open(download_url) do |downloaded_file|
-    open("#{archive_name}", "wb") do |output_file|
+    open(archive.path, "wb") do |output_file|
       IO.copy_stream(downloaded_file, output_file)
     end
   end
@@ -36,10 +51,12 @@ task :upload do
   unless pgp_sign_key
     raise "Set LAUNCHPAD_UPLOADER_PGP_KEY for signing"
   end
+
+  archive = Archive.new
   sh(upload_script,
      "--package", PACKAGE,
-     "--version", version,
-     "--source-archive", archive_name,
+     "--version", archive.version,
+     "--source-archive", archive.path,
      "--ubuntu-code-names", UBUNTU_CODE_NAMES,
      "--ubuntu-versions", UBUNTU_VERSIONS,
      "--debian-directory", "../debian/",
