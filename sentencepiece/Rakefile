@@ -1,5 +1,11 @@
 require "rake"
 require "octokit"
+require "open-uri"
+
+UBUNTU_CODE_NAMES = "xenial,bionic,disco"
+UBUNTU_VERSIONS = "16.04,18.04,19.04"
+PACKAGE = "sentencepiece"
+LAUNCHPAD_PPA ||= "groonga-ppa"
 
 package_task = ENV["APACHE_ARROW_REPOSITORY"] + "/dev/tasks/linux-packages/package-task"
 
@@ -7,9 +13,72 @@ ENV["APT_TARGETS"] ||= "debian-buster"
 
 require "#{package_task}"
 
+class Archive
+  def initialize
+    client = Octokit::Client.new
+    releases = client.releases("google/sentencepiece")
+    @current_release = releases.first
+  end
+
+  def tag_name
+    @current_release.tag_name
+  end
+
+  def version
+    tag_name.sub(/\Av/, "")
+  end
+
+  def path
+    "#{PACKAGE}-#{version}-Source.tar.xz"
+  end
+end
+
+
 class SentencePiecePackageTask < PackageTask
   def initialize
+    define_ppa_task
     super("sentencepiece", detect_version, nil)
+  end
+
+  def define_ppa_task
+    desc "Download SentencePiece source archive"
+    task :download do
+      archive = Archive.new
+      download_url_base = "https://github.com/google/sentencepiece/releases/download"
+      download_url = "#{download_url_base}/#{archive.tag_name}/#{archive.path}"
+      puts "Download #{download_url}"
+      open(download_url) do |downloaded_file|
+        open(archive.path, "wb") do |output_file|
+          IO.copy_stream(downloaded_file, output_file)
+        end
+      end
+    end
+
+    namespace :ppa do
+      desc "Upload SentencePiece source packages"
+      task :upload do
+        upload_script = ENV["UPLOAD_SCRIPT_PATH"]
+        unless upload_script
+          raise "Set UPLOAD_SCRIPT_PATH (e.g. $HOME/work/groonga/groonga/packages/ubuntu/upload.rb)"
+        end
+
+        pgp_sign_key = ENV["LAUNCHPAD_UPLOADER_PGP_KEY"]
+        unless pgp_sign_key
+          raise "Set LAUNCHPAD_UPLOADER_PGP_KEY for signing"
+        end
+
+        archive = Archive.new
+        sh(upload_script,
+           "--package", PACKAGE,
+           "--version", archive.version,
+           "--source-archive", archive.path,
+           "--ubuntu-code-names", UBUNTU_CODE_NAMES,
+           "--ubuntu-versions", UBUNTU_VERSIONS,
+           "--debian-directory", "../debian/",
+           "--ppa", LAUNCHPAD_PPA,
+           "--pgp-sign-key", pgp_sign_key)
+      end
+    end
   end
 
   private
