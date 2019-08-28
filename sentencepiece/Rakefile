@@ -1,7 +1,7 @@
 require "rake"
 require "octokit"
 
-package_task = ENV["RED_DATA_TOOLS_REPOSITORY"] + "/vendor/arrow/dev/tasks/linux-packages/package-task"
+package_task = ENV["APACHE_ARROW_REPOSITORY"] + "/dev/tasks/linux-packages/package-task"
 
 ENV["APT_TARGETS"] ||= "debian-buster"
 
