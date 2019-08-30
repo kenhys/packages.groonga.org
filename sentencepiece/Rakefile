@@ -4,7 +4,7 @@ require "open-uri"
 UBUNTU_CODE_NAMES = "xenial,bionic,disco"
 UBUNTU_VERSIONS = "16.04,18.04,19.04"
 PACKAGE = "sentencepiece"
-LAUNCHPAD_PPA ||= "groonga-ppa"
+LAUNCHPAD_PPA = "groonga-ppa"
 
 package_task = ENV["APACHE_ARROW_REPOSITORY"] + "/dev/tasks/linux-packages/package-task"
 
