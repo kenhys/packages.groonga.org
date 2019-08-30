@@ -10,7 +10,7 @@ package_task = ENV["APACHE_ARROW_REPOSITORY"] + "/dev/tasks/linux-packages/packa
 
 ENV["APT_TARGETS"] ||= "debian-buster"
 
-require "#{package_task}"
+require package_task
 
 class Archive
   def initialize
