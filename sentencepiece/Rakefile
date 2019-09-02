@@ -37,6 +37,7 @@ class SentencePiecePackageTask < PackageTask
   def initialize
     define_ppa_task
     super("sentencepiece", detect_version, nil)
+    setup_build_script
   end
 
   def define_ppa_task
@@ -112,6 +113,15 @@ class SentencePiecePackageTask < PackageTask
     sh("tar", "xf", archive_name)
     sh("mv", "sentencepiece-#{@version}-Source", "sentencepiece-#{@version}")
     sh("tar", "czvf", "sentencepiece-#{@version}.tar.gz", "sentencepiece-#{@version}")
+  end
+
+  def setup_build_script
+    script_path = ENV["APACHE_ARROW_REPOSITORY"] + "/dev/tasks/linux-packages/apt/build.sh"
+    Dir.chdir("apt") do
+      unless File.exist?("build.sh")
+        File.symlink(script_path, "build.sh")
+      end
+    end
   end
 end
 
