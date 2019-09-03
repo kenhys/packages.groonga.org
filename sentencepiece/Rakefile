@@ -6,11 +6,18 @@ UBUNTU_VERSIONS = "16.04,18.04,19.04"
 PACKAGE = "sentencepiece"
 LAUNCHPAD_PPA = "groonga-ppa"
 
-package_task = ENV["APACHE_ARROW_REPOSITORY"] + "/dev/tasks/linux-packages/package-task"
+def env_value(name)
+  value = ENV[name]
+  if value.nil?
+    raise "Environment variable is missing: #{name}"
+  end
+  value
+end
+
+apache_arrow_repository = env_value("APACHE_ARROW_REPOSITORY")
+require "#{apache_arrow_repository}/dev/tasks/linux-packages/package-task"
 
 ENV["APT_TARGETS"] ||= "debian-buster"
-
-require package_task
 
 class Archive
   def initialize
@@ -116,7 +123,7 @@ class SentencePiecePackageTask < PackageTask
   end
 
   def setup_build_script
-    script_path = ENV["APACHE_ARROW_REPOSITORY"] + "/dev/tasks/linux-packages/apt/build.sh"
+    script_path = env_value("APACHE_ARROW_REPOSITORY") + "/dev/tasks/linux-packages/apt/build.sh"
     Dir.chdir("apt") do
       unless File.exist?("build.sh")
         File.symlink(script_path, "build.sh")
