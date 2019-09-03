@@ -8,11 +8,23 @@ if apache_arrow_repository.nil?
 end
 require "#{apache_arrow_repository}/dev/tasks/linux-packages/package-task"
 
+packages_red_data_tools_repository = ENV["PACKAGES_RED_DATA_TOOLS_REPOSITORY"]
+if packages_red_data_tools_repository.nil?
+  raise "Specify PACKAGES_RED_DATA_TOOLS_REPOSITORY environment variable"
+end
+require "#{packages_red_data_tools_repository}/repository-task"
+
+groonga_repository = ENV["GROONGA_REPOSITORY"]
+if groonga_repository.nil?
+  raise "Specify GROONGA_REPOSITORY environment variable"
+end
+
 ENV["APT_TARGETS"] ||= "debian-buster"
 
 class SentencePiecePackageTask < PackageTask
-  def initialize(apache_arrow_repository)
+  def initialize(apache_arrow_repository, groonga_repository)
     @apache_arrow_repository = apache_arrow_repository
+    @groonga_repository = groonga_repository
     super("sentencepiece", "0.1.83", nil)
   end
 
@@ -27,7 +39,10 @@ class SentencePiecePackageTask < PackageTask
     namespace :ppa do
       desc "Upload SentencePiece source packages"
       task :upload => :dist do
-        upload_script = env_value("UPLOAD_SCRIPT_PATH")
+        upload_script = File.join(@groonga_repository,
+                                  "packages",
+                                  "ubuntu",
+                                  "upload.rb")
         pgp_sign_key = env_value("LAUNCHPAD_UPLOADER_PGP_KEY")
         sh(upload_script,
            "--package", @package,
@@ -78,5 +93,60 @@ class SentencePiecePackageTask < PackageTask
   end
 end
 
-task = SentencePiecePackageTask.new(apache_arrow_repository)
+class SentencePieceRepositoryTask < RepositoryTask
+  def initialize(packages_red_data_tools_repository, groonga_repository)
+    @packages_red_data_tools_repository = packages_red_data_tools_repository
+    @groonga_repository = groonga_repository
+  end
+
+  def define
+    super
+    Rake::Task["apt:upload"].clear
+    define_apt_upload_task
+  end
+
+  def gpg_uid
+    File.read(File.join(@groonga_repository,
+                        "gpg_uid")).chomp
+  end
+
+  def rsync_base_path
+    "packages@packages.groonga.org:public"
+  end
+
+  def gpg_key_path
+    File.join(@groonga_repository,
+              "packages",
+              "yum",
+              "RPM-GPG-KEY-groonga")
+  end
+
+  def repositories_dir
+    "apt/repositories"
+  end
+
+  def distributions
+    ["buster"]
+  end
+
+  def define_apt_upload_task
+    namespace :apt do
+      desc "Upload repositories"
+      task :upload => [repositories_dir] do
+        distributions.each do |distribution|
+          sh("rsync",
+             "-avz",
+             "--progress",
+             "--delete",
+             "#{repositories_dir}/#{distribution}/",
+             "#{rsync_base_path}/#{distribution}")
+        end
+      end
+    end
+  end
+end
+
+task = SentencePiecePackageTask.new(apache_arrow_repository, groonga_repository)
+task.define
+task = SentencePieceRepositoryTask.new(packages_red_data_tools_repository, groonga_repository)
 task.define
