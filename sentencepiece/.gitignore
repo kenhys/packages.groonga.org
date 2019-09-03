@@ -1,4 +1,6 @@
 /apt/build.sh
 /apt/env.sh
+/apt/repositories/
 /apt/tmp/
 /sentencepiece-*
+/tmp/

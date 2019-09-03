@@ -1,10 +1,6 @@
-require "octokit"
-require "open-uri"
-
 UBUNTU_CODE_NAMES = "xenial,bionic,disco"
 UBUNTU_VERSIONS = "16.04,18.04,19.04"
-PACKAGE = "sentencepiece"
-LAUNCHPAD_PPA = "groonga-ppa"
+LAUNCHPAD_PPA = "groonga-nightly"
 
 def env_value(name)
   value = ENV[name]
@@ -19,31 +15,10 @@ require "#{apache_arrow_repository}/dev/tasks/linux-packages/package-task"
 
 ENV["APT_TARGETS"] ||= "debian-buster"
 
-class Archive
-  def initialize
-    client = Octokit::Client.new
-    releases = client.releases("google/sentencepiece")
-    @current_release = releases.first
-  end
-
-  def tag_name
-    @current_release.tag_name
-  end
-
-  def version
-    tag_name.sub(/\Av/, "")
-  end
-
-  def path
-    "#{PACKAGE}-#{version}-Source.tar.xz"
-  end
-end
-
-
 class SentencePiecePackageTask < PackageTask
   def initialize(apache_arrow_repository)
     @apache_arrow_repository = apache_arrow_repository
-    super("sentencepiece", detect_version, nil)
+    super("sentencepiece", "0.1.83", nil)
   end
 
   def define
@@ -54,22 +29,9 @@ class SentencePiecePackageTask < PackageTask
 
   private
   def define_ppa_task
-    desc "Download SentencePiece source archive"
-    task :download do
-      archive = Archive.new
-      download_url_base = "https://github.com/google/sentencepiece/releases/download"
-      download_url = "#{download_url_base}/#{archive.tag_name}/#{archive.path}"
-      puts "Download #{download_url}"
-      open(download_url) do |downloaded_file|
-        open(archive.path, "wb") do |output_file|
-          IO.copy_stream(downloaded_file, output_file)
-        end
-      end
-    end
-
     namespace :ppa do
       desc "Upload SentencePiece source packages"
-      task :upload do
+      task :upload => :dist do
         upload_script = ENV["UPLOAD_SCRIPT_PATH"]
         unless upload_script
           raise "Set UPLOAD_SCRIPT_PATH (e.g. $HOME/work/groonga/groonga/packages/ubuntu/upload.rb)"
@@ -80,51 +42,34 @@ class SentencePiecePackageTask < PackageTask
           raise "Set LAUNCHPAD_UPLOADER_PGP_KEY for signing"
         end
 
-        archive = Archive.new
         sh(upload_script,
-           "--package", PACKAGE,
-           "--version", archive.version,
-           "--source-archive", archive.path,
+           "--package", @package,
+           "--version", @version,
+           "--source-archive", @full_archive_name,
            "--ubuntu-code-names", UBUNTU_CODE_NAMES,
            "--ubuntu-versions", UBUNTU_VERSIONS,
-           "--debian-directory", "../debian/",
+           "--debian-directory", "debian/",
            "--ppa", LAUNCHPAD_PPA,
            "--pgp-sign-key", pgp_sign_key)
       end
     end
   end
 
-  def source_dir
-    File.join(__dir__, "sentencepiece-#{@version}")
-  end
-
-  def detect_version
-    archive = Archive.new
-    @tag_name = archive.tag_name
-    @version = archive.version
-    archive.version
-  end
-
   def define_archive_task
-    archive_base_name = "sentencepiece-#{@version}"
-    archive_name = "#{archive_base_name}-Source.tar.xz"
-    file "#{archive_base_name}.tar.gz" do
-      download_archive
+    file @archive_name do
+      original_archive_base_name = "#{@archive_base_name}-Source"
+      original_archive_name = "#{original_archive_base_name}.tar.xz"
+      base_url = "https://github.com/google/#{@package}/releases/download"
+      download_url = "#{base_url}/v#{@version}/#{original_archive_name}"
+      download(download_url, original_archive_name)
+      sh("tar", "xf", original_archive_name)
+      rm(original_archive_name)
+      sh("mv",
+         original_archive_base_name,
+         @archive_base_name)
+      sh("tar", "czf", @archive_name, @archive_base_name)
+      rm_r(@archive_base_name)
     end
-  end
-
-  def download_archive
-    archive_name = "sentencepiece-#{@version}-Source.tar.xz"
-    base_url = "https://github.com/google/sentencepiece/releases/download"
-    download_url = "#{base_url}/#{@tag_name}/#{archive_name}"
-    download(download_url, archive_name)
-    repack_archive(archive_name)
-  end
-
-  def repack_archive(archive_name)
-    sh("tar", "xf", archive_name)
-    sh("mv", "sentencepiece-#{@version}-Source", "sentencepiece-#{@version}")
-    sh("tar", "czvf", "sentencepiece-#{@version}.tar.gz", "sentencepiece-#{@version}")
   end
 
   def define_apt_build_sh_task
