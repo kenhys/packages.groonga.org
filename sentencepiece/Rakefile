@@ -1,6 +1,6 @@
 UBUNTU_CODE_NAMES = "xenial,bionic,disco"
 UBUNTU_VERSIONS = "16.04,18.04,19.04"
-LAUNCHPAD_PPA = "groonga-nightly"
+LAUNCHPAD_PPA = "groonga-ppa"
 
 apache_arrow_repository = ENV["APACHE_ARROW_REPOSITORY"]
 if apache_arrow_repository.nil?
