@@ -1,0 +1,82 @@
+UBUNTU_CODE_NAMES = "xenial,bionic,disco"
+UBUNTU_VERSIONS = "16.04,18.04,19.04"
+LAUNCHPAD_PPA = "groonga-ppa"
+
+apache_arrow_repository = ENV["APACHE_ARROW_REPOSITORY"]
+if apache_arrow_repository.nil?
+  raise "Specify APACHE_ARROW_REPOSITORY environment variable"
+end
+require "#{apache_arrow_repository}/dev/tasks/linux-packages/package-task"
+
+ENV["APT_TARGETS"] ||= "debian-buster"
+
+class SentencePiecePackageTask < PackageTask
+  def initialize(apache_arrow_repository)
+    @apache_arrow_repository = apache_arrow_repository
+    super("sentencepiece", "0.1.83", nil)
+  end
+
+  def define
+    super
+    define_ppa_task
+    define_apt_build_sh_task
+  end
+
+  private
+  def define_ppa_task
+    namespace :ppa do
+      desc "Upload SentencePiece source packages"
+      task :upload => :dist do
+        upload_script = env_value("UPLOAD_SCRIPT_PATH")
+        pgp_sign_key = env_value("LAUNCHPAD_UPLOADER_PGP_KEY")
+        sh(upload_script,
+           "--package", @package,
+           "--version", @version,
+           "--source-archive", @full_archive_name,
+           "--ubuntu-code-names", UBUNTU_CODE_NAMES,
+           "--ubuntu-versions", UBUNTU_VERSIONS,
+           "--debian-directory", "debian/",
+           "--ppa", LAUNCHPAD_PPA,
+           "--pgp-sign-key", pgp_sign_key)
+      end
+    end
+  end
+
+  def define_archive_task
+    file @archive_name do
+      original_archive_base_name = "#{@archive_base_name}-Source"
+      original_archive_name = "#{original_archive_base_name}.tar.xz"
+      base_url = "https://github.com/google/#{@package}/releases/download"
+      download_url = "#{base_url}/v#{@version}/#{original_archive_name}"
+      download(download_url, original_archive_name)
+      sh("tar", "xf", original_archive_name)
+      rm(original_archive_name)
+      sh("mv",
+         original_archive_base_name,
+         @archive_base_name)
+      sh("tar", "czf", @archive_name, @archive_base_name)
+      rm_r(@archive_base_name)
+    end
+  end
+
+  def define_apt_build_sh_task
+    apache_arrow_apt_build_sh =
+      File.join(@apache_arrow_repository,
+                "dev",
+                "tasks",
+                "linux-packages",
+                "apt",
+                "build.sh")
+    apt_build_sh = File.join(__dir__, "apt", "build.sh")
+    file apt_build_sh => apache_arrow_apt_build_sh do |task|
+      cp(apache_arrow_apt_build_sh,
+         task.name)
+    end
+    namespace :apt do
+      task :build => apt_build_sh
+    end
+  end
+end
+
+task = SentencePiecePackageTask.new(apache_arrow_repository)
+task.define
