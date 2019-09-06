@@ -22,6 +22,7 @@ class SentencePiecePackageTask < PackageTask
     super
     define_ppa_task
     define_apt_build_sh_task
+    define_yum_build_sh_task
   end
 
   private
@@ -79,6 +80,24 @@ class SentencePiecePackageTask < PackageTask
     end
     namespace :apt do
       task :build => apt_build_sh
+    end
+  end
+
+  def define_yum_build_sh_task
+    apache_arrow_yum_build_sh =
+      File.join(@apache_arrow_repository,
+                "dev",
+                "tasks",
+                "linux-packages",
+                "yum",
+                "build.sh")
+    yum_build_sh = File.join(__dir__, "yum", "build.sh")
+    file yum_build_sh => apache_arrow_yum_build_sh do |task|
+      cp(apache_arrow_yum_build_sh,
+         task.name)
+    end
+    namespace :yum do
+      task :build => yum_build_sh
     end
   end
 end
