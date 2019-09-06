@@ -94,8 +94,7 @@ class SentencePiecePackageTask < PackageTask
 end
 
 class SentencePieceRepositoryTask < RepositoryTask
-  def initialize(packages_red_data_tools_repository, groonga_repository)
-    @packages_red_data_tools_repository = packages_red_data_tools_repository
+  def initialize(groonga_repository)
     @groonga_repository = groonga_repository
   end
 
@@ -149,6 +148,5 @@ end
 package_task = SentencePiecePackageTask.new(apache_arrow_repository,
                                             groonga_repository)
 package_task.define
-repository_task = SentencePieceRepositoryTask.new(packages_red_data_tools_repository,
-                                                  groonga_repository)
+repository_task = SentencePieceRepositoryTask.new(groonga_repository)
 repository_task.define
