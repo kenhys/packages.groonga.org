@@ -1,3 +1,6 @@
 /.vagrant/
-/vagrant_ansible_*
+/GPG-KEY-*
 /Gemfile.lock
+/repositories/
+/tmp/
+/vagrant_ansible_*
