@@ -6,7 +6,7 @@ Summary:	An unsupervised text tokenizer for Neural Network-based text generation
 Group:		Applications/Text
 License:	ASL 2.0
 URL:		https://github.com/google/sentencepiece
-Source0:	https://github.com/google/sentencepiece/releases/download/v%{version}/sentencepiece-%{version}-Source.tar.xz
+Source0:	https://github.com/google/sentencepiece/releases/download/v%{version}/sentencepiece-%{version}.tar.gz
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-%(%{__id_u} -n)
 BuildRequires:	cmake3
@@ -44,7 +44,7 @@ Requires:	%{name}-libs = %{version}-%{release}
 This package contains header files to develop a software using SentencePiece
 
 %prep
-%setup -q -n %{name}-%{version}-Source
+%setup -q
 
 %build
 %cmake3 . -DCMAKE_INSTALL_LIBDIR=%{_libdir}
