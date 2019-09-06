@@ -2,17 +2,14 @@ UBUNTU_CODE_NAMES = "xenial,bionic,disco"
 UBUNTU_VERSIONS = "16.04,18.04,19.04"
 LAUNCHPAD_PPA = "groonga-ppa"
 
-apache_arrow_repository = ENV["APACHE_ARROW_REPOSITORY"]
-if apache_arrow_repository.nil?
-  raise "Specify APACHE_ARROW_REPOSITORY environment variable"
+packages_red_data_tools_org_repository =
+  ENV["PACKAGES_RED_DATA_TOOLS_ORG_REPOSITORY"]
+if packages_red_data_tools_org_repository.nil?
+  raise "Specify PACKAGES_RED_DATA_TOOLS_ORG_REPOSITORY environment variable"
 end
+apache_arrow_repository =
+  "#{packages_red_data_tools_org_repository}/vendor/apache-arrow"
 require "#{apache_arrow_repository}/dev/tasks/linux-packages/package-task"
-
-packages_red_data_tools_repository = ENV["PACKAGES_RED_DATA_TOOLS_REPOSITORY"]
-if packages_red_data_tools_repository.nil?
-  raise "Specify PACKAGES_RED_DATA_TOOLS_REPOSITORY environment variable"
-end
-require "#{packages_red_data_tools_repository}/repository-task"
 
 groonga_repository = ENV["GROONGA_REPOSITORY"]
 if groonga_repository.nil?
@@ -93,60 +90,6 @@ class SentencePiecePackageTask < PackageTask
   end
 end
 
-class SentencePieceRepositoryTask < RepositoryTask
-  def initialize(groonga_repository)
-    @groonga_repository = groonga_repository
-  end
-
-  def define
-    super
-    Rake::Task["apt:upload"].clear
-    define_apt_upload_task
-  end
-
-  def gpg_uid
-    File.read(File.join(@groonga_repository,
-                        "gpg_uid")).chomp
-  end
-
-  def rsync_base_path
-    "packages@packages.groonga.org:public"
-  end
-
-  def gpg_key_path
-    File.join(@groonga_repository,
-              "packages",
-              "yum",
-              "RPM-GPG-KEY-groonga")
-  end
-
-  def repositories_dir
-    "apt/repositories"
-  end
-
-  def distributions
-    ["buster"]
-  end
-
-  def define_apt_upload_task
-    namespace :apt do
-      desc "Upload repositories"
-      task :upload => [repositories_dir] do
-        distributions.each do |distribution|
-          sh("rsync",
-             "-avz",
-             "--progress",
-             "--delete",
-             "#{repositories_dir}/#{distribution}/",
-             "#{rsync_base_path}/#{distribution}")
-        end
-      end
-    end
-  end
-end
-
-package_task = SentencePiecePackageTask.new(apache_arrow_repository,
-                                            groonga_repository)
-package_task.define
-repository_task = SentencePieceRepositoryTask.new(groonga_repository)
-repository_task.define
+task = SentencePiecePackageTask.new(apache_arrow_repository,
+                                    groonga_repository)
+task.define
