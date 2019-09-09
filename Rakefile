@@ -1,14 +1,6 @@
-begin
-  require "rspec/core/rake_task"
-rescue LoadError
-  puts("You need to install serverspec by 'gem install serverspec' for testing.")
-else
-  RSpec::Core::RakeTask.new(:spec) do |t|
-    t.pattern = "spec/**/*_spec.rb"
-  end
+# -*- ruby -*-
 
-  task :default => :spec
-end
+require_relative "vendor/packages.red-data-tools.org/repository-task"
 
 desc "Apply the Ansible configurations"
 task :deploy do
@@ -16,8 +8,6 @@ task :deploy do
      "--inventory-file", "hosts",
      "ansible/playbook.yml")
 end
-
-require_relative "vendor/packages.red-data-tools.org/repository-task"
 
 class GroongaRepositoryTask < RepositoryTask
   def repository_name
