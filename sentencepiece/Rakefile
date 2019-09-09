@@ -6,6 +6,7 @@ apache_arrow_path = "../vendor/packages.red-data-tools.org/vendor/apache-arrow"
 require_relative "#{apache_arrow_path}/dev/tasks/linux-packages/package-task"
 
 ENV["APT_TARGETS"] ||= "debian-buster"
+ENV["CENTOS_VERSIONS"] ||= "7"
 
 class SentencePiecePackageTask < PackageTask
   def initialize
@@ -16,6 +17,8 @@ class SentencePiecePackageTask < PackageTask
                                          "apache-arrow")
     @groonga_repository = File.join(vendor, "groonga")
     super("sentencepiece", "0.1.83", nil)
+    @original_archive_base_name = "#{@package}-#{@version}-Source"
+    @original_archive_name = "#{@original_archive_base_name}.tar.xz"
   end
 
   def define
@@ -49,16 +52,16 @@ class SentencePiecePackageTask < PackageTask
   end
 
   def define_archive_task
-    file @archive_name do
-      original_archive_base_name = "#{@archive_base_name}-Source"
-      original_archive_name = "#{original_archive_base_name}.tar.xz"
+    file @original_archive_name do
       base_url = "https://github.com/google/#{@package}/releases/download"
-      download_url = "#{base_url}/v#{@version}/#{original_archive_name}"
-      download(download_url, original_archive_name)
-      sh("tar", "xf", original_archive_name)
-      rm(original_archive_name)
+      download_url = "#{base_url}/v#{@version}/#{@original_archive_name}"
+      download(download_url, @original_archive_name)
+    end
+
+    file @archive_name => @original_archive_name do
+      sh("tar", "xf", @original_archive_name)
       sh("mv",
-         original_archive_base_name,
+         @original_archive_base_name,
          @archive_base_name)
       sh("tar", "czf", @archive_name, @archive_base_name)
       rm_r(@archive_base_name)

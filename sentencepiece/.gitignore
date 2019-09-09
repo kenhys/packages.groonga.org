@@ -4,3 +4,7 @@
 /apt/tmp/
 /sentencepiece-*
 /tmp/
+/yum/build.sh
+/yum/env.sh
+/yum/repositories/
+/yum/tmp/
