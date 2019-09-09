@@ -2,26 +2,19 @@ UBUNTU_CODE_NAMES = "xenial,bionic,disco"
 UBUNTU_VERSIONS = "16.04,18.04,19.04"
 LAUNCHPAD_PPA = "groonga-ppa"
 
-packages_red_data_tools_org_repository =
-  ENV["PACKAGES_RED_DATA_TOOLS_ORG_REPOSITORY"]
-if packages_red_data_tools_org_repository.nil?
-  raise "Specify PACKAGES_RED_DATA_TOOLS_ORG_REPOSITORY environment variable"
-end
-apache_arrow_repository =
-  "#{packages_red_data_tools_org_repository}/vendor/apache-arrow"
-require "#{apache_arrow_repository}/dev/tasks/linux-packages/package-task"
-
-groonga_repository = ENV["GROONGA_REPOSITORY"]
-if groonga_repository.nil?
-  raise "Specify GROONGA_REPOSITORY environment variable"
-end
+apache_arrow_path = "../vendor/packages.red-data-tools.org/vendor/apache-arrow"
+require_relative "#{apache_arrow_path}/dev/tasks/linux-packages/package-task"
 
 ENV["APT_TARGETS"] ||= "debian-buster"
 
 class SentencePiecePackageTask < PackageTask
-  def initialize(apache_arrow_repository, groonga_repository)
-    @apache_arrow_repository = apache_arrow_repository
-    @groonga_repository = groonga_repository
+  def initialize
+    vendor = File.join(__dir__, "..", "vendor")
+    @apache_arrow_repository = File.join(vendor,
+                                         "packages.red-data-tools.org",
+                                         "vendor",
+                                         "apache-arrow")
+    @groonga_repository = File.join(vendor, "groonga")
     super("sentencepiece", "0.1.83", nil)
   end
 
@@ -90,6 +83,5 @@ class SentencePiecePackageTask < PackageTask
   end
 end
 
-task = SentencePiecePackageTask.new(apache_arrow_repository,
-                                    groonga_repository)
+task = SentencePiecePackageTask.new
 task.define
