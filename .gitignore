@@ -1,6 +1,5 @@
-/.vagrant/
 /GPG-KEY-*
 /Gemfile.lock
+/ansible/playbook.retry
 /repositories/
 /tmp/
-/vagrant_ansible_*
