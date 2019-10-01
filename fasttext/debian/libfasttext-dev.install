@@ -1,0 +1,3 @@
+usr/include/*
+# PR#915 merged uncomment
+#usr/lib/*/pkgconfig/*
