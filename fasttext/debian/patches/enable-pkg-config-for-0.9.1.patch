@@ -1,0 +1,65 @@
+diff -uNr fastText-0.9.1.orig/CMakeLists.txt fastText-0.9.1/CMakeLists.txt
+--- fastText-0.9.1.orig/CMakeLists.txt	2019-07-04 20:48:15.000000000 +0900
++++ fastText-0.9.1/CMakeLists.txt	2019-10-04 12:39:35.906537477 +0900
+@@ -47,6 +47,16 @@
+     src/utils.cc
+     src/vector.cc)
+ 
++if (NOT MSVC)
++  include(GNUInstallDirs)
++  configure_file("fasttext.pc.in" "fasttext.pc" @ONLY)
++  install(FILES "${CMAKE_BINARY_DIR}/fasttext.pc" DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
++else()
++  set (CMAKE_INSTALL_BINDIR bin)
++  set (CMAKE_INSTALL_LIBDIR lib)
++  set (CMAKE_INSTALL_INCDIR include)
++endif()
++
+ add_library(fasttext-shared SHARED ${SOURCE_FILES} ${HEADER_FILES})
+ add_library(fasttext-static STATIC ${SOURCE_FILES} ${HEADER_FILES})
+ add_library(fasttext-static_pic STATIC ${SOURCE_FILES} ${HEADER_FILES})
+@@ -58,11 +68,11 @@
+ target_link_libraries(fasttext-bin pthread fasttext-static)
+ set_target_properties(fasttext-bin PROPERTIES PUBLIC_HEADER "${HEADER_FILES}" OUTPUT_NAME fasttext)
+ install (TARGETS fasttext-shared
+-    LIBRARY DESTINATION lib)
++    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+ install (TARGETS fasttext-static
+-    ARCHIVE DESTINATION lib)
++    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+ install (TARGETS fasttext-static_pic
+-    ARCHIVE DESTINATION lib)
++    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+ install (TARGETS fasttext-bin
+-    RUNTIME DESTINATION bin
+- PUBLIC_HEADER DESTINATION include/fasttext)
++    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
++ PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/fasttext)
+diff -uNr fastText-0.9.1.orig/fasttext.pc fastText-0.9.1/fasttext.pc
+--- fastText-0.9.1.orig/fasttext.pc	1970-01-01 09:00:00.000000000 +0900
++++ fastText-0.9.1/fasttext.pc	2019-10-04 12:17:41.466275751 +0900
+@@ -0,0 +1,10 @@
++prefix=/tmp
++exec_prefix=/tmp/libexec
++libdir=/tmp/lib/x86_64
++includedir=/tmp/include
++
++Name: fasttext
++Description: Efficient learning of word representations and sentence classification
++Version: 
++Libs: -L${libdir} -lfasttext
++Cflags: -I${includedir}
+diff -uNr fastText-0.9.1.orig/fasttext.pc.in fastText-0.9.1/fasttext.pc.in
+--- fastText-0.9.1.orig/fasttext.pc.in	1970-01-01 09:00:00.000000000 +0900
++++ fastText-0.9.1/fasttext.pc.in	2019-10-04 12:00:25.315895704 +0900
+@@ -0,0 +1,10 @@
++prefix=@CMAKE_INSTALL_PREFIX@
++exec_prefix=@CMAKE_INSTALL_FULL_LIBEXECDIR@
++libdir=@CMAKE_INSTALL_FULL_LIBDIR@
++includedir=@CMAKE_INSTALL_FULL_INCLUDEDIR@
++
++Name: @PROJECT_NAME@
++Description: Efficient learning of word representations and sentence classification
++Version: @PROJECT_VERSION@
++Libs: -L${libdir} -lfasttext
++Cflags: -I${includedir}
