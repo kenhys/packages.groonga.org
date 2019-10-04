@@ -55,7 +55,6 @@ class FastTextPackageTask < PackageTask
     file @original_archive_name do
       base_url = "https://github.com/facebookresearch/fastText/archive/"
       download_url = "#{base_url}/v#{@version}/#{@original_archive_name}"
-      p download_url
       download(download_url, @original_archive_name)
     end
     file @archive_name => @original_archive_name do
