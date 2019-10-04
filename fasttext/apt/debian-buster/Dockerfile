@@ -1,6 +1,8 @@
 FROM debian:buster
 
-ENV DEBIAN_FRONTEND noninteractive
+RUN \
+  echo "debconf debconf/frontend select Noninteractive" | \
+    debconf-set-selections
 
 ARG DEBUG
 
