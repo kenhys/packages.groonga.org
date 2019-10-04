@@ -2,7 +2,7 @@ Source: fasttext
 Priority: optional
 Maintainer: Kentaro Hayashi <hayashi@clear-code.com>
 Build-Depends:
- debhelper (>= 9),
+ debhelper (>= 12.1.1),
  cmake
 Standards-Version: 3.9.8
 Section: libs
