@@ -6,7 +6,7 @@ Build-Depends:
  cmake
 Standards-Version: 3.9.8
 Section: libs
-Homepage: https://github.com/facebookresearch/fastText
+Homepage: https://fasttext.cc/
 
 Package: libfasttext-dev
 Section: libdevel
