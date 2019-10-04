@@ -6,7 +6,7 @@ apache_arrow_path = "../vendor/packages.red-data-tools.org/vendor/apache-arrow"
 require_relative "#{apache_arrow_path}/dev/tasks/linux-packages/package-task"
 
 ENV["APT_TARGETS"] ||= "debian-buster"
-ENV["CENTOS_VERSIONS"] ||= "7"
+ENV["YUM_TARGETS"] ||= "centos-7"
 
 class FastTextPackageTask < PackageTask
   def initialize
