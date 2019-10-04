@@ -7,7 +7,6 @@ Group:		Applications/Text
 License:	MIT
 URL:		https://github.com/facebookresearch/fastText
 Source0:	fasttext-%{version}.tar.gz
-Patch0:		enable-pkg-config-for-0.9.1.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-%(%{__id_u} -n)
 BuildRequires:	cmake3
@@ -44,7 +43,6 @@ This package contains header files to develop a software using fastText
 
 %prep
 %setup -q
-%patch0 -p1
 
 %build
 %cmake3 .
@@ -53,6 +51,8 @@ make %{?_smp_mflags}
 %install
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
+# need to move %{_libdir} because lib is hardcoded in CMakeLists.txt
+mv %{buildroot}/usr/lib %{buildroot}%{_libdir}
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.a
 
 %clean
@@ -69,7 +69,6 @@ rm -rf $RPM_BUILD_ROOT
 %files devel
 %defattr(-,root,root,-)
 %{_includedir}/fasttext/*.h
-%{_libdir}/pkgconfig/fasttext.pc
 
 %files tools
 %defattr(-,root,root,-)
